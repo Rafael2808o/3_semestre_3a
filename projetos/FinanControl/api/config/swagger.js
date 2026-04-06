@@ -530,53 +530,7 @@ const documentacao = {
                 }
 
             },
-            patch: {
-                tags: ['Transações'],
-                summary: 'Atualizar parcialmente os dados da transação',
-                description: 'Atualiza apenas os campos enviados de uma transação existente',
-                parameters: [
-                    {
-                        name: "id_transacao",
-                        in: "path",
-                        required: true,
-                        description: "ID da transação a ser atualizada",
-                        schema: {
-                            type: 'integer',
-                            example: 1
-                        }
-                    }
-                ],
-                requestBody: {
-                    required: true,
-                    content: {
-                        "application/json": {
-                            schema: { $ref: "#/components/schemas/Atualizar_Transacao" },
-                            example: {
-                                valor: 200.00,
-                                descricao: "Compra atualizada"
-                            }
-                        }
-                    }
-                },
-                responses: {
-                    200: {
-                        description: "Transação atualizada com sucesso!"
-                    },
-                    404: {
-                        description: "Transação não encontrada",
-                        content: {
-                            "application/json": {
-                                example: { message: "Transação não encontrada" }
-                            }
-                        }
-                    },
-                    500: {
-                        description: "Erro interno no servidor"
-                    }
 
-                }
-
-            },
             delete: {
                 tags: ['Transações'],
                 summary: 'Remover Transação',
