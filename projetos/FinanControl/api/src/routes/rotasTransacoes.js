@@ -7,7 +7,20 @@ const router = Router();
 router.get('/transacoes', async (req, res) => {
     try {
         //cria uma variavel para enviar o comando sql
-        const query = `SELECT * FROM transacoes ORDER BY id_transacao`
+        const query = `SELECT
+                       t.id_transacao,
+                       t.valor,
+                       t.descricao,
+                       TO_CHAR(t.data_vencimento, 'DD/MM/YYYY') AS data_vencimento,
+                       TO_CHAR(t.data_pagamento, 'DD/MM/YYYY') AS data_pagamento,
+                       TO_CHAR(t.data_registro, 'DD/MM/YYYY') AS data_registro,
+                       t.tipo,
+                       c.nome AS categoria,
+                       s.nome AS subcategoria
+                    FROM transacoes t
+                    LEFT JOIN categorias c ON t.id_categoria = c.id_categoria
+                    LEFT JOIN subcategorias s ON t.id_subcategoria = s.id_subcategoria
+                    ORDER BY t.data_vencimento DESC`;
 
         //cria uma variavel para receber o retorno do sql
         const transacoes = await BD.query(query);

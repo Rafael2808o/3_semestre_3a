@@ -734,12 +734,12 @@ const documentacao = {
                     id_transacao: { type: "integer", example: 1 },
                     valor: { type: "number", format: "decimal", example: 150.00 },
                     descricao: { type: "string", example: "Compra de supermercado" },
-                    data_registro: { type: "string", format: "date-time", example: "2023-11-01T10:00:00Z" },
-                    data_vencimento: { type: "string", format: "date", example: "2023-12-01" },
-                    data_pagamento: { type: "string", format: "date", example: "2023-12-01" },
-                    tipo: { type: "string", example: "D" },
-                    id_subcategoria: { type: "integer", example: 1 },
-                    id_categoria: { type: "integer", example: 1 }
+                    data_vencimento: { type: "string", example: "01/12/2023" },
+                    data_pagamento: { type: "string", example: "01/12/2023" },
+                    data_registro: { type: "string", example: "01/11/2023" },
+                    tipo: { type: "string", enum: ["E", "S"], example: "D" },
+                    categoria: { type: "string", example: "Alimentação" },
+                    subcategoria: { type: "string", example: "Supermercado" }
                 }
             },
             Cadastrar_Transacao: {
@@ -750,6 +750,7 @@ const documentacao = {
                     descricao: { type: "string", example: "Compra de supermercado" },
                     data_vencimento: { type: "string", format: "date", example: "2023-12-01" },
                     data_pagamento: { type: "string", format: "date", example: "2023-12-01" },
+                    data_registro: { type: "string", format: "date", example: "2023-11-01" },
                     tipo: { type: "string", example: "D" },
                     id_subcategoria: { type: "integer", example: 1 },
                     id_categoria: { type: "integer", example: 1 }
@@ -772,5 +773,3 @@ const documentacao = {
     }
 }
 export default documentacao
-
-
