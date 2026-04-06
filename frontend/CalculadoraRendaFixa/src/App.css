@@ -1,0 +1,41 @@
+/* ===========================================
+   ESTILOS GLOBAIS DA APLICAÇÃO
+   =========================================== */
+
+/* Importa a fonte Inter do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Reset e configurações base */
+*,
+
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fundo escuro para toda a página */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #0f172a;
+  color: #cbd5e1;
+  min-height: 100vh;
+}
+
+/* Área de conteúdo centralizada com espaçamento */
+.conteudo-principal {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* Remove estilos padrão de listas quando necessário */
+ul,
+ol {
+  list-style: revert;
+}
+/* Links padrão */
+a {
+  color: #38bdf8;
+}

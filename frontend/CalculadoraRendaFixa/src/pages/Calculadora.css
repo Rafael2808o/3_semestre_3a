@@ -1,0 +1,106 @@
+/* ---- Calculadora.css ---- */
+/* Layout de duas colunas: formulário | resultados */
+.calculadora-layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* ---- FORMULÁRIO ---- */
+.formulario-card {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.formulario-cabecalho {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #334155;
+}
+
+.formulario-cabecalho h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.formulario-corpo {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Campo individual: label + input */
+.campo-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.campo-grupo label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+.campo-grupo input,
+.campo-grupo select {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid #475569;
+    color: #f1f5f9;
+    font-size: 1rem;
+    padding: 0.4rem 0;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.campo-grupo input:focus,
+.campo-grupo select:focus {
+    border-bottom-color: #38bdf8;
+}
+
+.campo-grupo select {
+    cursor: pointer;
+}
+
+.campo-grupo select option {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}
+
+/* Dois campos lado a lado */
+.campos-linha {
+    display: flex;
+    gap: 1rem;
+}
+
+.campos-linha .campo-grupo {
+    flex: 1;
+}
+
+/* ---- RESULTADOS ---- */
+.resultados-titulo {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 0.25rem;
+}
+
+.resultados-descricao {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    margin: 0 0 1rem;
+}
+
+/* Responsivo: empilha em telas pequenas */
+@media (max-width: 768px) {
+    .calculadora-layout {
+        grid-template-columns: 1fr;
+    }
+}
