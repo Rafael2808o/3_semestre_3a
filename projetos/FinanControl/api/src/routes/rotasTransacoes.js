@@ -100,7 +100,7 @@ router.get('/transacoes/tipo/:tipo', async (req, res) => {
         if (tipo !== 'E' && tipo !== 'S') {
             return res.status(400).json({ message: 'Tipo de transação inválido. Use "E" para entrada ou "S" para saída.' });
         }
- const query = `SELECT
+        const query = `SELECT
                        t.id_transacao,
                        t.valor,
                        t.descricao,
@@ -124,6 +124,98 @@ router.get('/transacoes/tipo/:tipo', async (req, res) => {
     }
 });
 
+// Listando transações por categoria
+router.get('/transacoes/categoria/:id_categoria', async (req, res) => {
+    const { id_categoria } = req.params;
+    try {
+        const query = `SELECT
+                       t.id_transacao,
+                       t.valor,
+                       t.descricao,
+                       TO_CHAR(t.data_vencimento, 'DD/MM/YYYY') AS data_vencimento,
+                       TO_CHAR(t.data_pagamento, 'DD/MM/YYYY') AS data_pagamento,
+                       TO_CHAR(t.data_registro, 'DD/MM/YYYY') AS data_registro,
+                       t.tipo,
+                       c.nome AS categoria,
+                       s.nome AS subcategoria
+                    FROM transacoes t
+                    LEFT JOIN categorias c ON t.id_categoria = c.id_categoria
+                    LEFT JOIN subcategorias s ON t.id_subcategoria = s.id_subcategoria
+                    WHERE t.id_categoria = $1
+                    ORDER BY t.data_registro DESC`;
+        const transacoes = await BD.query(query, [id_categoria]);
+        return res.status(200).json(transacoes.rows);
 
+    } catch (error) {
+        console.error('Erro ao listar transacoes por categoria', error.message);
+        return res.status(500).json({ error: 'Erro ao listar transacoes por categoria' + error.message });
+    }
+});
+
+// listar transações por periodo
+router.get('/transacoes/periodo', async (req, res) => {
+    const { data_inicio, data_fim } = req.query;
+    try {
+        if (!data_inicio || !data_fim) {
+            return res.status(400).json({ message: 'Data de início e data de fim são obrigatórias. Use formato YYYY-MM-DD' });
+        }
+
+        // Validar formato das datas (YYYY-MM-DD)
+        const regexData = /^\d{4}-\d{2}-\d{2}$/;
+        if (!regexData.test(data_inicio) || !regexData.test(data_fim)) {
+            return res.status(400).json({ message: 'Formato de data inválido. Use YYYY-MM-DD' });
+        }
+
+        const query = `SELECT
+                       t.id_transacao,
+                       t.valor,
+                       t.descricao,
+                       TO_CHAR(t.data_vencimento, 'DD/MM/YYYY') AS data_vencimento,
+                       TO_CHAR(t.data_pagamento, 'DD/MM/YYYY') AS data_pagamento,
+                       TO_CHAR(t.data_registro, 'DD/MM/YYYY') AS data_registro,
+                       t.tipo,
+                       c.nome AS categoria,
+                       s.nome AS subcategoria
+                    FROM transacoes t
+                    LEFT JOIN categorias c ON t.id_categoria = c.id_categoria
+                    LEFT JOIN subcategorias s ON t.id_subcategoria = s.id_subcategoria
+                    WHERE t.data_registro::date BETWEEN $1::date AND $2::date
+                    ORDER BY t.data_registro DESC`;
+
+        const transacoes = await BD.query(query, [data_inicio, data_fim]);
+        return res.status(200).json(transacoes.rows);
+    } catch (error) {
+        console.error('Erro ao listar transacoes por periodo', error.message);
+        return res.status(500).json({ error: 'Erro ao listar transacoes por periodo: ' + error.message });
+    }
+});
+
+// Listando transações por subcategoria
+router.get('/transacoes/subcategoria/:id_subcategoria', async (req, res) => {
+    const { id_subcategoria } = req.params;
+    try {
+        const query = `SELECT
+                       t.id_transacao,
+                       t.valor,
+                       t.descricao,
+                       TO_CHAR(t.data_vencimento, 'DD/MM/YYYY') AS data_vencimento,
+                       TO_CHAR(t.data_pagamento, 'DD/MM/YYYY') AS data_pagamento,
+                       TO_CHAR(t.data_registro, 'DD/MM/YYYY') AS data_registro,
+                       t.tipo,
+                       c.nome AS categoria,
+                       s.nome AS subcategoria
+                    FROM transacoes t
+                    LEFT JOIN categorias c ON t.id_categoria = c.id_categoria
+                    LEFT JOIN subcategorias s ON t.id_subcategoria = s.id_subcategoria
+                    WHERE t.id_subcategoria = $1
+                    ORDER BY t.data_registro DESC`;
+        const transacoes = await BD.query(query, [id_subcategoria]);
+        return res.status(200).json(transacoes.rows);
+
+    } catch (error) {
+        console.error('Erro ao listar transacoes por subcategoria', error.message);
+        return res.status(500).json({ error: 'Erro ao listar transacoes por subcategoria' + error.message });
+    }
+});
 
 export default router

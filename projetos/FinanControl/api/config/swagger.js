@@ -2,18 +2,26 @@ const documentacao = {
     openapi: '3.0.3',
     info: {
         title: 'API FinanControl',
-        description: 'Documentação da API FinanControl',
-        version: '1.0.0'
+        description: 'API para gerenciar finanças pessoais com suporte a usuários, categorias, subcategorias e transações',
+        version: '1.0.0',
+        contact: {
+            name: 'Suporte FinanControl',
+            email: 'suporte@financecontrol.com'
+        },
+        license: {
+            name: 'MIT'
+        }
     },
     servers: [
-        { url: 'http://localhost:3000/', description: 'localhost' }
+        { url: 'http://localhost:3000', description: 'Desenvolvimento' },
+        { url: 'https://api.financecontrol.com', description: 'Produção' }
     ],
     tags: [
+        { name: 'Autenticação', description: 'Autenticação e login do sistema' },
         { name: 'Usuários', description: 'Operações relacionadas aos usuários' },
         { name: 'Categorias', description: 'Operações relacionadas às categorias' },
         { name: 'Subcategorias', description: 'Operações relacionadas às subcategorias' },
-        { name: 'Transações', description: 'Operações relacionadas às transações' },
-        { name: 'Autenticação', description: 'Login do sistema' }
+        { name: 'Transações', description: 'Operações relacionadas às transações' }
     ],
     paths: {
         "/usuarios": {
@@ -216,6 +224,111 @@ const documentacao = {
                     }
                 }
             }
+        },
+        "/transacoes/categoria/{id_categoria}": {
+            get: {
+                tags: ['Transações'],
+                summary: 'Filtrar transações por categoria',
+                parameters: [{
+                    name: 'id_categoria',
+                    in: 'path',
+                    required: true,
+                    schema: {
+                        type: 'integer',
+                        example: 1
+                    }
+                }],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'array',
+                                    items: { $ref: '#/components/schemas/Listar_Transacoes' }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/transacoes/subcategoria/{id_subcategoria}": {
+            get: {
+                tags: ['Transações'],
+                summary: 'Filtrar transações por subcategoria',
+                parameters: [{
+                    name: 'id_subcategoria',
+                    in: 'path',
+                    required: true,
+                    schema: {
+                        type: 'integer',
+                        example: 1
+                    }
+                }],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'array',
+                                    items: { $ref: '#/components/schemas/Listar_Transacoes' }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/transacoes/periodo": {
+            get: {
+                tags: ['Transações'],
+                summary: 'Filtrar transações por período',
+                parameters: [
+                    {
+                        name: 'data_inicio',
+                        in: 'query',
+                        required: true,
+                        schema: {
+                            type: 'string',
+                            format: 'date',
+                            example: '2024-01-01'
+                        },
+                        description: 'Data de início (YYYY-MM-DD)'
+                    },
+                    {
+                        name: 'data_fim',
+                        in: 'query',
+                        required: true,
+                        schema: {
+                            type: 'string',
+                            format: 'date',
+                            example: '2024-12-31'
+                        },
+                        description: 'Data de fim (YYYY-MM-DD)'
+                    }
+                ],
+                responses: {
+                    200: {
+                        description: 'OK',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'array',
+                                    items: { $ref: '#/components/schemas/Listar_Transacoes_Periodo' }
+                                }
+                            }
+                        }
+                    },
+                    400: {
+                        description: 'Data de início e data de fim são obrigatórias'
+                    },
+                    500: {
+                        description: 'Erro ao listar transações por período'
+                    }
+                }
+            }
         }
     },
 
@@ -286,6 +399,21 @@ const documentacao = {
                     id_transacao: { type: "integer" },
                     valor: { type: "number" },
                     descricao: { type: "string" },
+                    tipo: { type: "string", enum: ["E", "S"], example: "S" },
+                    categoria: { type: "string" },
+                    subcategoria: { type: "string" }
+                }
+            },
+
+            Listar_Transacoes_Periodo: {
+                type: 'object',
+                properties: {
+                    id_transacao: { type: "integer" },
+                    valor: { type: "number" },
+                    descricao: { type: "string" },
+                    data_vencimento: { type: "string", example: "01/01/2024" },
+                    data_pagamento: { type: "string", example: "01/01/2024" },
+                    data_registro: { type: "string", example: "01/01/2024" },
                     tipo: { type: "string", enum: ["E", "S"], example: "S" },
                     categoria: { type: "string" },
                     subcategoria: { type: "string" }
