@@ -32,13 +32,15 @@ router.post('/membros', async (req, res) => {
         const comando = `INSERT INTO membros(usuario_id, grupo_id, papel) VALUES($1, $2, $3)`
         const valores = [usuario_id, grupo_id, papel];
 
+        console.log('Tentando inserir:', { usuario_id, grupo_id, papel });
         await BD.query(comando, valores)
-        console.log(comando, valores);
+        console.log('Membro inserido com sucesso');
 
         return res.status(201).json("Membro cadastrado.");
     } catch (error) {
-        console.error('Erro ao cadastrar membro', error.message);
-        return res.status(500).json({ error: 'Erro ao cadastrar membro' })
+        console.error('Erro ao cadastrar membro:', error.message);
+        console.error('Stack:', error);
+        return res.status(500).json({ error: 'Erro ao cadastrar membro: ' + error.message })
     }
 })
 

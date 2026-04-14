@@ -4,7 +4,6 @@ import CRUDCategorias from './components/CRUDCategorias'
 import CRUDUsuarios from './components/CRUDUsuarios'
 import CRUDMembros from './components/CRUDMembros'
 import Menu from './components/Menu'
-import './App.css'
 
 function App() {
   const [paginaAtiva, setPaginaAtiva] = useState('grupos')

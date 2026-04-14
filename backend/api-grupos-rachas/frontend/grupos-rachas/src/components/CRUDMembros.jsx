@@ -153,20 +153,20 @@ const CRUDMembros = () => {
     }
 
     return (
-        <div style={estilos.container}>
-            <h1 style={estilos.titulo}>Gerenciamento de Membros</h1>
+        <div className="crud-container">
+            <h1 className="crud-titulo">Gerenciamento de Membros</h1>
 
             {erro && (
-                <div style={estilos.alerta}>
+                <div className="crud-alerta">
                     {erro}
                 </div>
             )}
 
-            <div style={estilos.formulario}>
+            <div className="crud-formulario">
                 <h2>{editando ? 'Editar Membro' : 'Cadastrar Novo Membro'}</h2>
 
                 <select
-                    style={estilos.inputs}
+                    className="crud-select"
                     value={usuarioId}
                     onChange={(event) => setUsuarioId(event.target.value)}
                     disabled={carregando}
@@ -180,7 +180,7 @@ const CRUDMembros = () => {
                 </select>
 
                 <select
-                    style={estilos.inputs}
+                    className="crud-select"
                     value={grupoId}
                     onChange={(event) => setGrupoId(event.target.value)}
                     disabled={carregando}
@@ -193,18 +193,21 @@ const CRUDMembros = () => {
                     ))}
                 </select>
 
-                <input
-                    type="text"
-                    placeholder="Papel (ex: admin, membro)"
-                    style={estilos.inputs}
+                <select
+                    className="crud-select"
                     value={papel}
                     onChange={(event) => setPapel(event.target.value)}
                     disabled={carregando}
-                />
+                >
+                    <option value="">Selecione um papel</option>
+                    <option value="membro">Membro</option>
+                    <option value="admin">Admin</option>
+                    <option value="moderador">Moderador</option>
+                </select>
 
-                <div style={estilos.botoesFormulario}>
+                <div className="crud-botoes">
                     <button
-                        style={estilos.botaoSalvar}
+                        className="crud-botao-salvar"
                         onClick={botaoAdicionar}
                         disabled={carregando}
                     >
@@ -212,7 +215,7 @@ const CRUDMembros = () => {
                     </button>
                     {editando && (
                         <button
-                            style={estilos.botaoCancelar}
+                            className="crud-botao-cancelar"
                             onClick={LimparCamposFormularios}
                             disabled={carregando}
                         >
@@ -222,11 +225,11 @@ const CRUDMembros = () => {
                 </div>
             </div>
 
-            <hr style={estilos.divisor} />
+            <hr className="crud-divisor" />
 
-            <h2>Lista de Membros ({listaMembros.length})</h2>
-            {carregando && <p style={estilos.carregando}>Carregando...</p>}
-            <div style={estilos.lista}>
+            <h2 className="crud-lista-titulo">Lista de Membros ({listaMembros.length})</h2>
+            {carregando && <p className="crud-carregando">Carregando...</p>}
+            <div className="crud-lista">
                 {listaMembros.length === 0 && !carregando ? (
                     <p>Nenhum membro cadastrado ainda.</p>
                 ) : (
@@ -242,91 +245,6 @@ const CRUDMembros = () => {
             </div>
         </div>
     )
-}
-
-const estilos = {
-    container: {
-        maxWidth: "1200px",
-        margin: "0 auto",
-        padding: "20px",
-        fontFamily: "Arial, sans-serif"
-    },
-
-    titulo: {
-        color: "#333",
-        textAlign: "center",
-        marginBottom: "30px"
-    },
-
-    alerta: {
-        backgroundColor: "#f8d7da",
-        color: "#721c24",
-        padding: "15px",
-        borderRadius: "4px",
-        marginBottom: "20px",
-        border: "1px solid #f5c6cb"
-    },
-
-    carregando: {
-        color: "#666",
-        fontStyle: "italic",
-        textAlign: "center"
-    },
-
-    formulario: {
-        backgroundColor: "#f5f5f5",
-        padding: "20px",
-        borderRadius: "8px",
-        marginBottom: "30px"
-    },
-
-    inputs: {
-        width: "100%",
-        padding: "10px",
-        fontSize: "16px",
-        marginBottom: "10px",
-        border: "1px solid #ddd",
-        borderRadius: "4px",
-        boxSizing: "border-box"
-    },
-
-    botoesFormulario: {
-        display: "flex",
-        gap: "10px"
-    },
-
-    botaoSalvar: {
-        flex: 1,
-        backgroundColor: "#e30613",
-        color: "#fff",
-        borderRadius: "5px",
-        fontWeight: "bold",
-        border: "none",
-        padding: "10px",
-        fontSize: "16px",
-        cursor: "pointer"
-    },
-
-    botaoCancelar: {
-        backgroundColor: "#999",
-        color: "#fff",
-        borderRadius: "5px",
-        fontWeight: "bold",
-        border: "none",
-        padding: "10px",
-        fontSize: "16px",
-        cursor: "pointer"
-    },
-
-    divisor: {
-        margin: "30px 0"
-    },
-
-    lista: {
-        display: 'flex',
-        gap: 15,
-        flexWrap: 'wrap'
-    }
 }
 
 export default CRUDMembros
