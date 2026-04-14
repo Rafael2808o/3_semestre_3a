@@ -17,6 +17,10 @@ router.get('/grupos', async (req, res) => {
 router.post('/grupos', async (req, res) => {
     const { nome, descricao, vagas, categoria_id } = req.body;
     try {
+        if (!nome || !vagas || !categoria_id) {
+            return res.status(400).json({ error: 'Campos obrigatórios: nome, vagas, categoria_id' })
+        }
+
         const comando = `INSERT INTO grupos(nome, descricao, vagas, categoria_id) VALUES($1, $2, $3, $4)`
         const valores = [nome, descricao, vagas, categoria_id];
 
@@ -26,7 +30,7 @@ router.post('/grupos', async (req, res) => {
         return res.status(201).json("Grupo cadastrado.");
     } catch (error) {
         console.error('Erro ao cadastrar grupo', error.message);
-        return res.status(500).json({ error: 'Erro ao cadastrar grupo' })
+        return res.status(500).json({ error: 'Erro ao cadastrar grupo: ' + error.message })
     }
 })
 

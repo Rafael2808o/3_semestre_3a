@@ -3,6 +3,17 @@ import { BD } from "../../db.js";
 
 const router = Router();
 
+router.get('/membros', async (req, res) => {
+    try {
+        const query = `SELECT * FROM membros ORDER BY id`
+        const membros = await BD.query(query);
+        return res.status(200).json(membros.rows);
+    } catch (error) {
+        console.error('Erro ao listar membros', error.message);
+        return res.status(500).json({ error: 'Erro ao listar membros' })
+    }
+})
+
 router.get('/grupos/:id/membros', async (req, res) => {
     const { id } = req.params;
     try {

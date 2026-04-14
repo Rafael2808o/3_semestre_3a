@@ -2,8 +2,15 @@ const documentacao = {
     openapi: '3.0.3',
     info: {
         title: 'API Grupos & Rachas',
-        description: 'API para gerenciar grupos e atividades compartilhadas com amigos. Crie grupos, compartilhe convites e organize atividades como racha de futebol, grupos de estudos e vaquinhas.',
+        description: 'API para gerenciar grupos e atividades compartilhadas com amigos. Crie grupos e organize atividades como racha de futebol, grupos de estudos e vaquinhas.',
         version: '1.0.0',
+        contact: {
+            name: 'Suporte',
+            email: 'suporte@gruposrachas.com'
+        },
+        license: {
+            name: 'MIT'
+        }
     },
     servers: [
         { url: 'http://localhost:3000', description: 'Desenvolvimento' },
@@ -14,8 +21,7 @@ const documentacao = {
         { name: 'Usuários', description: 'Operações relacionadas aos usuários' },
         { name: 'Categorias', description: 'Operações relacionadas às categorias de grupos' },
         { name: 'Grupos', description: 'Operações relacionadas aos grupos' },
-        { name: 'Membros', description: 'Operações de participação em grupos' },
-        { name: 'Histórico', description: 'Histórico de grupos do usuário' }
+        { name: 'Membros', description: 'Operações de participação em grupos' }
     ],
     paths: {
         "/usuarios": {
@@ -318,25 +324,6 @@ const documentacao = {
             }
         },
 
-        "/membros/entrar": {
-            post: {
-                tags: ['Membros'],
-                summary: 'Entrar em um grupo com código de convite',
-                requestBody: {
-                    required: true,
-                    content: {
-                        "application/json": {
-                            schema: { $ref: "#/components/schemas/Entrar_Grupo" }
-                        }
-                    }
-                },
-                responses: {
-                    200: { description: "Você entrou no grupo com sucesso!" },
-                    400: { description: "Código inválido ou grupo cheio" }
-                }
-            }
-        },
-
         "/grupos/{id}/membros": {
             get: {
                 tags: ['Membros'],
@@ -354,31 +341,6 @@ const documentacao = {
                                 schema: {
                                     type: "array",
                                     items: { $ref: '#/components/schemas/Listar_Membros' }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-
-        "/historico/{usuario_id}": {
-            get: {
-                tags: ['Histórico'],
-                summary: 'Obter histórico de grupos do usuário',
-                parameters: [{
-                    name: "usuario_id",
-                    in: "path",
-                    required: true,
-                    schema: { type: 'integer' }
-                }],
-                responses: {
-                    200: {
-                        content: {
-                            "application/json": {
-                                schema: {
-                                    type: "array",
-                                    items: { $ref: '#/components/schemas/Historico_Grupos' }
                                 }
                             }
                         }
@@ -465,7 +427,6 @@ const documentacao = {
                     nome: { type: "string" },
                     descricao: { type: "string" },
                     vagas: { type: "integer" },
-                    codigo_convite: { type: "string" },
                     ativo: { type: "boolean" },
                     categoria_id: { type: "integer" },
                     criador_id: { type: "integer" },
@@ -494,15 +455,6 @@ const documentacao = {
                 }
             },
 
-            Entrar_Grupo: {
-                type: 'object',
-                properties: {
-                    codigo_convite: { type: "string", example: "ABC123" },
-                    usuario_id: { type: "integer", example: 1 }
-                },
-                required: ['codigo_convite', 'usuario_id']
-            },
-
             Listar_Membros: {
                 type: 'object',
                 properties: {
@@ -511,19 +463,6 @@ const documentacao = {
                     grupo_id: { type: "integer" },
                     nome_usuario: { type: "string" },
                     papel: { type: "string", example: "dono" },
-                    entrou_em: { type: "string", format: "date-time" }
-                }
-            },
-
-            Historico_Grupos: {
-                type: 'object',
-                properties: {
-                    id: { type: "integer" },
-                    nome: { type: "string" },
-                    descricao: { type: "string" },
-                    ativo: { type: "boolean" },
-                    categoria_nome: { type: "string" },
-                    papel: { type: "string" },
                     entrou_em: { type: "string", format: "date-time" }
                 }
             }
