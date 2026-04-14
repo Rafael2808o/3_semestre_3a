@@ -3,35 +3,10 @@ import { BD } from "../../db.js";
 
 const router = Router();
 
-const gerarCodigoConvite = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let codigo = '';
-    for (let i = 0; i < 6; i++) {
-        codigo += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return codigo;
-}
-
 router.get('/grupos', async (req, res) => {
     try {
-        const { categoria_id, com_vagas } = req.query;
-        let query = `SELECT g.*, c.nome as categoria_nome,
-                    (SELECT COUNT(*) FROM membros WHERE grupo_id = g.id) as membros_atuais
-                    FROM grupos g LEFT JOIN categorias c ON g.categoria_id = c.id
-                    WHERE g.ativo = true`
-        const valores = [];
-
-        if (categoria_id) {
-            query += ` AND g.categoria_id = $${valores.length + 1}`;
-            valores.push(categoria_id);
-        }
-
-        if (com_vagas === 'true') {
-            query += ` AND g.vagas > (SELECT COUNT(*) FROM membros WHERE grupo_id = g.id)`;
-        }
-
-        query += ` ORDER BY g.criado_em DESC`;
-        const grupos = await BD.query(query, valores);
+        const query = `SELECT * FROM grupos ORDER BY id`
+        const grupos = await BD.query(query);
         return res.status(200).json(grupos.rows);
     } catch (error) {
         console.error('Erro ao listar grupos', error.message);
@@ -40,23 +15,15 @@ router.get('/grupos', async (req, res) => {
 })
 
 router.post('/grupos', async (req, res) => {
-    const { nome, descricao, vagas, categoria_id, usuario_id } = req.body;
+    const { nome, descricao, vagas, categoria_id } = req.body;
     try {
-        let codigo = gerarCodigoConvite();
-        let codigoExists = await BD.query('SELECT id FROM grupos WHERE codigo_convite = $1', [codigo]);
-        while (codigoExists.rows.length > 0) {
-            codigo = gerarCodigoConvite();
-            codigoExists = await BD.query('SELECT id FROM grupos WHERE codigo_convite = $1', [codigo]);
-        }
+        const comando = `INSERT INTO grupos(nome, descricao, vagas, categoria_id) VALUES($1, $2, $3, $4)`
+        const valores = [nome, descricao, vagas, categoria_id];
 
-        const comando = `INSERT INTO grupos(nome, descricao, vagas, categoria_id, criador_id, codigo_convite, ativo) VALUES($1, $2, $3, $4, $5, $6, true) RETURNING id`
-        const valores = [nome, descricao, vagas, categoria_id, usuario_id, codigo];
-        const resultado = await BD.query(comando, valores);
-        const grupo_id = resultado.rows[0].id;
+        await BD.query(comando, valores)
+        console.log(comando, valores);
 
-        await BD.query(`INSERT INTO membros(usuario_id, grupo_id, papel) VALUES($1, $2, $3)`, [usuario_id, grupo_id, 'dono']);
-
-        return res.status(201).json({ message: 'Grupo cadastrado', grupo_id, codigo_convite: codigo });
+        return res.status(201).json("Grupo cadastrado.");
     } catch (error) {
         console.error('Erro ao cadastrar grupo', error.message);
         return res.status(500).json({ error: 'Erro ao cadastrar grupo' })
@@ -66,13 +33,10 @@ router.post('/grupos', async (req, res) => {
 router.get('/grupos/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const query = `SELECT * FROM grupos WHERE id = $1`
-        const grupo = await BD.query(query, [id]);
-
+        const grupo = await BD.query('SELECT * FROM grupos WHERE id = $1', [id]);
         if (grupo.rows.length === 0) {
             return res.status(404).json({ message: 'Grupo não encontrado' })
         }
-
         return res.status(200).json(grupo.rows[0]);
     } catch (error) {
         console.error('Erro ao buscar grupo', error.message);
@@ -82,72 +46,93 @@ router.get('/grupos/:id', async (req, res) => {
 
 router.put('/grupos/:id', async (req, res) => {
     const { id } = req.params;
-    const { nome, descricao, vagas, categoria_id, usuario_id } = req.body;
+    const { nome, descricao, vagas, categoria_id } = req.body;
     try {
-        const verificarGrupo = await BD.query(`SELECT criador_id FROM grupos WHERE id = $1`, [id])
+        //Verificar se a grupo existe
+        const verificarGrupo = await BD.query(`SELECT * FROM grupos WHERE id = $1`, [id])
         if (verificarGrupo.rows.length === 0) {
             return res.status(404).json({ message: 'Grupo não encontrado' })
         }
 
-        if (verificarGrupo.rows[0].criador_id !== usuario_id) {
-            return res.status(403).json({ message: 'Apenas o dono pode editar o grupo' })
-        }
-
-        if (vagas && vagas > 0) {
-            const membrosCount = await BD.query('SELECT COUNT(*) FROM membros WHERE grupo_id = $1', [id]);
-            if (parseInt(membrosCount.rows[0].count) > vagas) {
-                return res.status(400).json({ message: 'Não pode reduzir vagas abaixo do número de membros' })
-            }
-        }
-
+        // Atualiza todos os campos da tabela(PUT Substituição completa)
         const comando = `UPDATE grupos SET nome = $1, descricao = $2, vagas = $3, categoria_id = $4 WHERE id = $5`;
         const valores = [nome, descricao, vagas, categoria_id, id];
         await BD.query(comando, valores);
 
-        return res.status(200).json({ message: 'Grupo foi atualizado!' });
+        return res.status(200).json('Grupo foi atualizado!');
     } catch (error) {
         console.error('Erro ao atualizar grupo', error.message);
         return res.status(500).json({ error: 'Erro ao atualizar grupo' })
     }
 })
 
-router.delete('/grupos/:id', async (req, res) => {
+//Rota patch atualizando parcialmente as informações
+router.patch('/grupos/:id', async (req, res) => {
     const { id } = req.params;
-    const { usuario_id } = req.body;
+    const { nome, descricao, vagas, categoria_id } = req.body;
+
     try {
-        const grupo = await BD.query('SELECT criador_id FROM grupos WHERE id = $1', [id]);
-        if (grupo.rows.length === 0) {
+        //Verificar se a grupo existe
+        const verificarGrupo = await BD.query(`SELECT * FROM grupos WHERE id = $1`, [id])
+        if (verificarGrupo.rows.length === 0) {
             return res.status(404).json({ message: 'Grupo não encontrado' })
         }
 
-        if (grupo.rows[0].criador_id !== usuario_id) {
-            return res.status(403).json({ message: 'Apenas o dono pode deletar o grupo' })
+        //Montar o update dinamicamente(apenas campos enviados)
+        const campos = [];
+        const valores = [];
+        let contador = 1;
+
+        if (nome !== undefined) {
+            campos.push(`nome = $${contador}`);
+            valores.push(nome);
+            contador++;
+        }
+        if (descricao !== undefined) {
+            campos.push(`descricao = $${contador}`);
+            valores.push(descricao);
+            contador++;
+        }
+        if (vagas !== undefined) {
+            campos.push(`vagas = $${contador}`);
+            valores.push(vagas);
+            contador++;
+        }
+        if (categoria_id !== undefined) {
+            campos.push(`categoria_id = $${contador}`);
+            valores.push(categoria_id);
+            contador++;
         }
 
-        await BD.query(`UPDATE grupos SET ativo = false WHERE id = $1`, [id]);
-        return res.status(200).json({ message: "Grupo encerrado com sucesso" })
+        //se nenhum campo foi enviado
+        if (campos.length === 0) {
+            return res.status(400).json({ message: "Nenhum campo a atualizar" })
+        }
+
+        //Adicionando ID ao final de valores
+        valores.push(id)
+
+        //montando a query dinamicamente
+        const comando = `UPDATE grupos SET ${campos.join(', ')} WHERE id = $${contador}`
+        await BD.query(comando, valores)
+
+        return res.status(200).json('Grupo atualizado com sucesso');
     } catch (error) {
-        console.error('Erro ao remover grupo', error.message)
-        return res.status(500).json({ message: "Erro interno do servidor: " + error.message })
+        console.error('Erro ao atualizar grupo', error.message)
+        return res.status(500).json({ message: "Erro interno do servidor" + error.message })
     }
 })
 
-router.post('/grupos/:id/encerrar', async (req, res) => {
+router.delete('/grupos/:id', async (req, res) => {
     const { id } = req.params;
-    const { usuario_id } = req.body;
     try {
-        const grupo = await BD.query('SELECT criador_id FROM grupos WHERE id = $1', [id]);
-        if (grupo.rows.length === 0) {
-            return res.status(404).json({ message: 'Grupo não encontrado' })
-        }
-        if (grupo.rows[0].criador_id !== usuario_id) {
-            return res.status(403).json({ message: 'Apenas o dono pode encerrar' })
-        }
-        await BD.query(`UPDATE grupos SET ativo = false WHERE id = $1`, [id]);
-        return res.status(200).json({ message: 'Grupo encerrado com sucesso' });
+        //Executa o comando de delete
+        const comando = `DELETE FROM grupos WHERE id = $1`
+        await BD.query(comando, [id])
+        return res.status(200).json({ message: "Grupo removido com sucesso" })
     } catch (error) {
-        console.error('Erro ao encerrar grupo', error.message);
-        return res.status(500).json({ error: 'Erro ao encerrar grupo' })
+        console.error('Erro ao remover grupo', error.message)
+        return res.status(500).json({ message: "Erro interno do servidor" + error.message })
     }
 })
 
