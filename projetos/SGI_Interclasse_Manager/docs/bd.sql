@@ -21,6 +21,7 @@ CREATE TABLE campeonatos (
 CREATE TABLE times (
     id_time SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
+    cor VARCHAR(7) NOT NULL,
     foto TEXT,
     id_campeonato INT NOT NULL,
     FOREIGN KEY (id_campeonato) REFERENCES campeonatos(id_campeonato)
@@ -102,17 +103,20 @@ INSERT INTO campeonatos (nome, formato, data_inicio, data_fim, id_usuario, qtd_t
 ('Interclasse Handebol', 'grupos', '2026-05-03', '2026-05-13', 1, 4, 'handebol'),
 ('Interclasse Queimada', 'mata-mata', '2026-05-04', '2026-05-14', 1, 4, 'queimada');
 
-INSERT INTO times (nome, foto, id_campeonato) VALUES
-('Time A Futsal', NULL, 1),
-('Time B Futsal', NULL, 1),
-('Time C Futsal', NULL, 1),
-('Time D Futsal', NULL, 1),
-('Time A Basquete', NULL, 2),
-('Time B Basquete', NULL, 2),
-('Time A Handebol', NULL, 3),
-('Time B Handebol', NULL, 3),
-('Time A Queimada', NULL, 4),
-('Time B Queimada', NULL, 4);
+INSERT INTO times (nome, cor, foto, id_campeonato) VALUES
+('Time A Futsal', '#FF0000', NULL, 1),
+('Time B Futsal', '#0000FF', NULL, 1),
+('Time C Futsal', '#00FF00', NULL, 1),
+('Time D Futsal', '#FFFF00', NULL, 1),
+
+('Time A Basquete', '#FF6600', NULL, 2),
+('Time B Basquete', '#6600FF', NULL, 2),
+
+('Time A Handebol', '#00FFFF', NULL, 3),
+('Time B Handebol', '#FF00FF', NULL, 3),
+
+('Time A Queimada', '#999999', NULL, 4),
+('Time B Queimada', '#333333', NULL, 4);
 
 INSERT INTO jogadores (nome, id_time) VALUES
 ('João', 1),
