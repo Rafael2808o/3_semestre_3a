@@ -3,7 +3,6 @@ import { BD } from "../../db.js";
 
 const router = Router();
 
-// Listar todos os agendamentos: GET /agendamentos
 router.get('/', async (req, res) => {
     try {
         const query = `SELECT * FROM agendamentos ORDER BY data_hora DESC`
@@ -15,7 +14,6 @@ router.get('/', async (req, res) => {
     }
 })
 
-// Cadastrar novo agendamento: POST /agendamentos
 router.post('/', async (req, res) => {
     const { id_cliente, id_servico, data_hora, status } = req.body;
     try {
@@ -30,7 +28,6 @@ router.post('/', async (req, res) => {
     }
 })
 
-// Buscar agendamento por ID: GET /agendamentos/:id
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -48,7 +45,6 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-// Atualizar agendamento (PUT): PUT /agendamentos/:id
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { id_cliente, id_servico, data_hora, status } = req.body;

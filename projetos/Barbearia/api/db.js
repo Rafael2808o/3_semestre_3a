@@ -10,9 +10,9 @@ const BD = new Pool({
 
 const testarConexao = async () =>{
     try{
-        const cliente = await BD.connect(); // Realiza a conexão
+        const cliente = await BD.connect(); 
         console.log('Conexão estabelecida');
-        cliente.release(); // Libera a conexão
+        cliente.release();
     }catch(error){
         console.error('Erro ao conectar com o banco', error.message);
     }

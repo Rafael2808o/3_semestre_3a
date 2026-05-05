@@ -3,10 +3,8 @@ import { BD } from "../../db.js";
 
 const router = Router();
 
-// Listar todos os serviços
 router.get('/', async (req, res) => {
     try {
-        // Ajustado para 'id_servico'. Se no seu banco for outro nome, altere aqui.
         const query = `SELECT * FROM servicos ORDER BY id_servico`
         const servicos = await BD.query(query);
         return res.status(200).json(servicos.rows);
@@ -16,7 +14,6 @@ router.get('/', async (req, res) => {
     }
 })
 
-// Cadastrar novo serviço
 router.post('/', async (req, res) => {
     const { nome, descricao, preco } = req.body;
     try {
@@ -31,7 +28,6 @@ router.post('/', async (req, res) => {
     }
 })
 
-// Buscar serviço por ID
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -49,7 +45,6 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-// Atualizar serviço (PUT)
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { nome, descricao, preco } = req.body;
@@ -70,7 +65,6 @@ router.put('/:id', async (req, res) => {
     }
 })
 
-// Remover serviço
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     try {

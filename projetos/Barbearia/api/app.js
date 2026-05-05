@@ -10,7 +10,6 @@ const app = express();
 
 app.use(express.json());
 
-// Adicione:
 
 app.get('/swagger', (req, res) => {
 

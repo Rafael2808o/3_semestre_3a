@@ -75,13 +75,11 @@ router.patch('/:id', async (req, res) => {
     const { nome, email, senha, tipo } = req.body;
 
     try {
-        //Verificar se o usuario existe
         const verificarUsuario = await BD.query(`SELECT * FROM usuarios WHERE id_usuario = $1`, [id])
         if (verificarUsuario.rows.length === 0) {
             return res.status(404).json({ message: 'Usuario não encontrado' })
         }
 
-        //Montar o update dinamicamente(apenas campos enviados)
         const campos = [];
         const valores = [];
         let contador = 1;
@@ -109,15 +107,12 @@ router.patch('/:id', async (req, res) => {
             contador++;
         }
 
-        //se nenhum campo foi enviado
         if (campos.length === 0) {
             return res.status(400).json({ message: "Nenhum campo a atualizar" })
         }
 
-        //Adicionando ID ao final de valores
         valores.push(id)
 
-        //montando a query dinamicamente
         const comando = `UPDATE usuarios SET ${campos.join(', ')} WHERE id_usuario = $${contador}`
         await BD.query(comando, valores)
 
