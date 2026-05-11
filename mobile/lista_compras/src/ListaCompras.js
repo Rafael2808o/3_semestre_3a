@@ -1,38 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect, use } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StatusBar, Image } from 'react-native';
 import Estilos, { corPrincipal, corSecundaria, corTextos, corFundo, corFundo2, corPlaceholder } from './Estilos';
 import { MaterialIcons } from '@expo/vector-icons';
+import { firestore } from '../firebase.config';
+import { collection, addDoc, getDocs, query, updateDoc, deleteDoc, where, orderBy, doc } from 'firebase/firestore';
+
 const ListaCompras = () => {
     const [item, setItem] = useState('');
-    const [listaCompras, setListaCompras] = useState([
-        { id: '1', produto: '1 cartela de ovo 🥚', comprado: false },
-        { id: '2', produto: '1 kg de arroz 🍚', comprado: true },
-    ]);
+    const [listaCompras, setListaCompras] = useState([]);
 
-    const botaoAdicionar = () => {
-        if (item.trim() === '') return; // Evita adicionar itens vazios
-        const novoItem = {
-            id: Date.now().toString(),
-            produto: item,
-            comprado: false,
-        };
-        setListaCompras([...listaCompras, novoItem]);
-        setItem(''); // Limpa o campo de input
+    async function buscarDados() {
+        const comando = query(collection(firestore, 'compras Rafael'), orderBy('produto', 'asc'));
+        const dadosBD = await getDocs(comando);
+        const lista = dadosBD.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setListaCompras(lista);
+    }
+
+    useEffect(() => {
+        buscarDados();
+    }, []);
+
+    const botaoAdicionar = async () => {
+        const novoItem = { produto: item, comprado: false };
+        const docRef = await addDoc(collection(firestore, 'compras Rafael'), novoItem);
+        console.log(docRef);
+
+        setItem('');
+        buscarDados();
     };
 
-const exibirItens = ({ item }) => {
-    return (
-        <TouchableOpacity style={Estilos.botaoItem}>
-            <Text style={[
-                Estilos.textoBotaoItem, 
-                item.comprado && Estilos.textoItemComprado // Só aplica se for true
-            ]}>
-                {item.produto}
-            </Text>
-            <MaterialIcons name='delete-outline' size={24} color={corPrincipal} />
-        </TouchableOpacity>
-    )
-};
+    async function botaoExcluir(id) {
+        await deleteDoc(doc(firestore, 'compras Rafael', id));
+        buscarDados();
+    }
+
+    const exibirItens = ({ item }) => {
+        return (
+            <TouchableOpacity style={Estilos.botaoItem} onPress={async () => {
+                await updateDoc(doc(firestore, 'compras Rafael', item.id), { comprado: !item.comprado });
+                buscarDados();
+            }}>
+                <Text style={[
+                    Estilos.textoBotaoItem,
+                    item.comprado && Estilos.textoItemComprado
+                ]}>
+                    {item.produto}
+                </Text>
+                <MaterialIcons name='delete-outline' size={24} color={corPrincipal} onPress={() => botaoExcluir(item.id)} />
+            </TouchableOpacity>
+        );
+    };
 
     return (
         <View style={Estilos.conteudo}>

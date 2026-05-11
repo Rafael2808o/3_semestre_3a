@@ -16,6 +16,9 @@ const documentacao = {
         { url: 'http://localhost:3000', description: 'Desenvolvimento' },
         { url: 'https://api.barbearia.com', description: 'Produção' }
     ],
+    security: [
+        { bearerAuth: [] }
+    ],
     tags: [
         { name: 'Usuários', description: 'Operações relacionadas aos usuários' },
         { name: 'Serviços', description: 'Operações relacionadas aos serviços' },
@@ -26,6 +29,7 @@ const documentacao = {
             get: {
                 tags: ["Usuários"],
                 summary: "Listar todos os usuários",
+                security: [{ bearerAuth: [] }],
                 responses: {
                     200: {
                         description: "Dados obtidos com sucesso!",
@@ -311,6 +315,13 @@ const documentacao = {
     },
 
     components: {
+        securitySchemes: {
+            bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT'
+            }
+        },
         schemas: {
             Listar_Usuarios: {
                 type: 'object',

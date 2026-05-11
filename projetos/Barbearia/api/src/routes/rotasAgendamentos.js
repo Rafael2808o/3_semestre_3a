@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { BD } from "../../db.js";
+import jwt from 'jsonwebtoken';
+import { autenticarToken } from "../middlewares/autenticacao.js";
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.get('/', autenticarToken, async (req, res) => {
     try {
         const query = `SELECT * FROM agendamentos ORDER BY data_hora DESC`
         const agendamentos = await BD.query(query);
@@ -14,7 +16,7 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.post('/', async (req, res) => {
+router.post('/', autenticarToken, async (req, res) => {
     const { id_cliente, id_servico, data_hora, status } = req.body;
     try {
         const comando = `INSERT INTO agendamentos(id_cliente, id_servico, data_hora, status) VALUES($1, $2, $3, $4)`

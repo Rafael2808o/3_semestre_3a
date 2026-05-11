@@ -1,10 +1,13 @@
 import { BD } from "../../db.js";
 import bcrypt from 'bcrypt';
 import { Router } from "express";
+import jwt from 'jsonwebtoken';
+import { autenticarToken } from "../middlewares/autenticacao.js";
 
 const router = Router();
+const SECRET_KEY = 'sua_chave_secreta';
 
-router.get('/', async (req, res) => {
+router.get('/', autenticarToken, async (req, res) => {
     try {
         const usuarios = await BD.query(`SELECT * FROM usuarios ORDER BY id_usuario`);
         return res.status(200).json(usuarios.rows);
@@ -145,6 +148,13 @@ router.post('/login', async (req, res) => {
 
         const usuario = resultado.rows[0];
         const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+// Gerar token JWT
+// Gerar token JWT com os dados do usuário logado
+        const token = jwt.sign(
+            { id: usuario.id_usuario, nome: usuario.nome, email: usuario.email, tipo: usuario.tipo },
+            SECRET_KEY,
+            // { expiresIn: '15m' }
+        );         
 
         if (!senhaCorreta) {
             return res.status(401).json({ error: 'Email ou senha incorretos' });
@@ -152,7 +162,8 @@ router.post('/login', async (req, res) => {
 
         return res.status(200).json({
             message: 'Login realizado com sucesso',
-            usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, tipo: usuario.tipo }
+            usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email, tipo: usuario.tipo },
+            token: token
         });
     } catch (error) {
         console.error('Erro ao realizar login', error.message);
