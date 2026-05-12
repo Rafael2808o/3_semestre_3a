@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { BD } from "../../db.js";
+import { autenticarToken } from "../../../../Barbearia/api/src/middlewares/autenticacao.js";
 
 const router = Router();
 
@@ -35,14 +36,15 @@ router.get('/transacoes', async (req, res) => {
 })
 
 //Endpoint seguro contra sql Injection
-router.post('/transacoes', async (req, res) => {
+router.post('/transacoes', autenticarToken, async (req, res) => {
     const { valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria } = req.body;
     try {
-        const comando = `INSERT INTO transacoes(valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria) VALUES($1, $2, $3, $4, $5, $6, $7)`
-        const valores = [valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria];
+        const id_usuario = req.usuario.id_usuario; // Supondo que o ID do usuário esteja disponível no token de autenticação
+        const comandoComUsuario = `INSERT INTO transacoes(valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria, id_usuario) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`
+        const valoresComUsuario = [valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria, id_usuario];
 
-        await BD.query(comando, valores)
-        console.log(comando, valores);
+        await BD.query(comandoComUsuario, valoresComUsuario)
+        console.log(comandoComUsuario, valoresComUsuario);
 
         return res.status(201).json("Transacao cadastrada.");
     } catch (error) {
@@ -53,7 +55,7 @@ router.post('/transacoes', async (req, res) => {
 
 // endpoint para atualizar uma unica transacao
 // recebendo o parametro pelo id e buscando a transacao
-router.put('/transacoes/:id_transacao', async (req, res) => {
+router.put('/transacoes/:id_transacao', autenticarToken, async (req, res) => {
     // Id recebido via parametro
     const { id_transacao } = req.params;
 
@@ -80,12 +82,17 @@ router.put('/transacoes/:id_transacao', async (req, res) => {
 })
 
 
-router.delete('/transacoes/:id_transacao', async (req, res) => {
+router.delete('/transacoes/:id_transacao', autenticarToken, async (req, res) => {
     const { id_transacao } = req.params;
     try {
         //Executa o comando de delete
         const comando = `DELETE FROM transacoes WHERE id_transacao = $1`
-        await BD.query(comando, [id_transacao])
+        const resultado = await BD.query(comando, [id_transacao])
+
+        if (resultado.rowCount === 0) {
+            return res.status(404).json({ message: "Transacao não encontrada" })
+        }
+
         return res.status(200).json({ message: "Transacao removida com sucesso" })
     } catch (error) {
         console.error('Erro ao remover transacao', error.message)
@@ -217,5 +224,38 @@ router.get('/transacoes/subcategoria/:id_subcategoria', async (req, res) => {
         return res.status(500).json({ error: 'Erro ao listar transacoes por subcategoria' + error.message });
     }
 });
+
+// Agendar compromisso, trabalhando com limite de datas e horarios
+
+router.post('/transacoes/agendar', autenticarToken, async (req, res) => {
+    const { valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria } = req.body;
+    try {
+        const hoje = new Date();
+        hoje.setHours(0,0,0,0);
+
+        const consulta = `SELECT id_transacao FROM transacoes WHERE data_vencimento = TO_DATE($1, 'YYYY-MM-DD') AND id_categoria = $2 AND id_usuario = $3
+        `;
+        const conflito = await BD.query(consulta, [data_vencimento, id_categoria, req.usuario.id_usuario]);
+        if (conflito.rows.length > 0) {
+            return res.status(409).json({ message: 'Já existe uma transação agendada para esta data, categoria e usuário.' });
+        }
+
+        const dataVencimento = new Date(data_vencimento);
+        dataVencimento.setHours(0,0,0,0);
+
+        if (dataVencimento < hoje) {
+            return res.status(400).json({ message: 'Data de vencimento deve ser futura.' });
+        }
+
+        const comando = `INSERT INTO transacoes(valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria, id_usuario) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`
+        const valores = [valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria, req.usuario.id_usuario];
+        await BD.query(comando, valores)
+        return res.status(201).json("Transacao agendada com sucesso.");
+    }
+    catch (error) { 
+        console.error('Erro ao agendar transacao', error.message);
+        return res.status(500).json({ error: 'Erro ao agendar transacao' + error.message })
+    }
+})
 
 export default router

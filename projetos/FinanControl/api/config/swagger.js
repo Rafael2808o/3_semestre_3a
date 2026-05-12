@@ -331,6 +331,31 @@ const documentacao = {
             }
         }
     },
+    "/transacoes/agendar": {
+        post: {
+            tags: ['Transações'],
+            summary: 'Agendar transação',
+            description: 'Permite agendar uma transação para uma data futura, com opção de definir data de vencimento e pagamento',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: { $ref: '#/components/schemas/Cadastrar_Transacao' }
+                    }
+                }
+            },
+            responses: {
+                201: {
+                    description: 'Transação agendada com sucesso'
+                },
+                400: {
+                    description: 'Dados inválidos para agendamento da transação'
+                }
+            }
+        }
+    },
+
 
     components: {
         schemas: {

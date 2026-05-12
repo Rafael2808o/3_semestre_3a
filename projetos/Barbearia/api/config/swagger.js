@@ -61,6 +61,81 @@ const documentacao = {
                 }
             }
         },
+        "/usuarios/login": {
+    post: {
+        tags: ['Usuários'],
+        summary: 'Realizar login',
+        requestBody: {
+            required: true,
+            content: {
+                "application/json": {
+                    schema: {
+                        type: 'object',
+                        properties: {
+                            email: {
+                                type: 'string',
+                                example: 'joao@email.com'
+                            },
+                            senha: {
+                                type: 'string',
+                                example: '123456'
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        responses: {
+            200: {
+                description: 'Login realizado com sucesso',
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                message: {
+                                    type: 'string',
+                                    example: 'Login realizado com sucesso'
+                                },
+                                usuario: {
+                                    type: 'object',
+                                    properties: {
+                                        id: {
+                                            type: 'integer',
+                                            example: 1
+                                        },
+                                        nome: {
+                                            type: 'string',
+                                            example: 'João Silva'
+                                        },
+                                        email: {
+                                            type: 'string',
+                                            example: 'joao@email.com'
+                                        },
+                                        tipo: {
+                                            type: 'string',
+                                            example: 'cliente'
+                                        }
+                                    }
+                                },
+                                token: {
+                                    type: 'string',
+                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            401: {
+                description: 'Email ou senha incorretos'
+            },
+            500: {
+                description: 'Erro interno no servidor'
+            }
+        }
+    }
+},
 
         "/usuarios/{id}": {
             get: {
