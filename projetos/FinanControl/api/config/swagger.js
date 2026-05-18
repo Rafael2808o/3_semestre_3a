@@ -1,4 +1,5 @@
 const documentacao = {
+    // gyf
     openapi: '3.0.3',
     info: {
         title: 'API FinanControl',
