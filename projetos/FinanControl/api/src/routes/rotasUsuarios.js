@@ -1,11 +1,15 @@
 import { Router } from "express";
 import { BD } from "../../db.js";
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { autenticarToken } from "../middlewares/autenticacao.js";
+
+const SECRET_KEY = 'sua_chave_secreta';
 
 const router = Router();
 
 //Criando o endpoint para listar todos os usuarios
-router.get('/usuarios', async (req, res) => {
+router.get('/usuarios', autenticarToken, async (req, res) => {
     try {
         //cria uma variavel para enviar o comando sql
         const query = `SELECT * FROM usuarios ORDER BY id_usuario`
@@ -23,7 +27,7 @@ router.get('/usuarios', async (req, res) => {
 })
 
 //Endpoint seguro contra sql Injection
-router.post('/usuarios', async (req, res) => {
+router.post('/usuarios', autenticarToken, async (req, res) => {
     const { nome, email, senha, tipo_acesso } = req.body;
     try {
         //definindo a força da criptografia
@@ -46,7 +50,7 @@ router.post('/usuarios', async (req, res) => {
 
 // endpoint para atualizar um unico usuário
 // recebendo o parametro pelo id e buscando o usuario
-router.put('/usuarios/:id_usuario', async (req, res) => {
+router.put('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
     // Id recebido via parametro
     const { id_usuario } = req.params;
 
@@ -59,10 +63,13 @@ router.put('/usuarios/:id_usuario', async (req, res) => {
         if (verificarUsuario.rows.length === 0) {
             return res.status(404).json({ message: 'Usuario não encontrado' })
         }
+        // Criptografar a senha
+        const saltRounds = 10
+        const senhaCriptografada = await bcrypt.hash(senha, saltRounds)
         // Atualiza todos os campos da tabela(PUT Substituição completa)
         const comando = `UPDATE USUARIOS SET nome = $1, email = $2, senha =$3, tipo_acesso = $4 WHERE
         id_usuario = $5`;
-        const valores = [nome, email, senha, tipo_acesso, id_usuario];
+        const valores = [nome, email, senhaCriptografada, tipo_acesso, id_usuario];
         await BD.query(comando, valores);
 
         return res.status(200).json('Usuario foi atualizado!');
@@ -73,7 +80,7 @@ router.put('/usuarios/:id_usuario', async (req, res) => {
 })
 
 //Rota patch atualizando parcialmente as informações
-router.patch('/usuarios/:id_usuario', async (req, res) => {
+router.patch('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
     const { id_usuario } = req.params;
     const { nome, email, senha } = req.body;
 
@@ -101,8 +108,10 @@ router.patch('/usuarios/:id_usuario', async (req, res) => {
             contador++;
         }
         if (senha !== undefined) {
+            const saltRounds = 10
+            const senhaCriptografada = await bcrypt.hash(senha, saltRounds)
             campos.push(`senha = $${contador}`);
-            valores.push(senha);
+            valores.push(senhaCriptografada);
             contador++;
         }
 
@@ -125,7 +134,7 @@ router.patch('/usuarios/:id_usuario', async (req, res) => {
     }
 })
 
-router.delete('/usuarios/:id_usuario', async (req, res) => {
+router.delete('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
     const { id_usuario } = req.params;
     try {
         //Executa o comando de delete
@@ -140,29 +149,56 @@ router.delete('/usuarios/:id_usuario', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     const { email, senha } = req.body;
-    try {
-        //buscar usuario pelo email
-        const comando = 'SELECT * FROM usuarios WHERE email = $1';
-        const resultado = await BD.query(comando, [email])
-        if (resultado === 0) {
-            return res.status(401).json({ message: 'email incorreto' })
-        }
-        const usuario = resultado.rows[0]
 
-        //Comparar a senha enviada com a senha gravada no banco
-        const senhaCorreta = await bcrypt.compare(senha, usuario.senha)
-        if (!senhaCorreta) {
-            return res.status(401).json({ message: 'Senha incorreta' })
+    try {
+
+        console.log(email);
+        console.log(senha);
+
+        const comando = 'SELECT * FROM usuarios WHERE email = $1';
+        const resultado = await BD.query(comando, [email]);
+
+        console.log(resultado.rows);
+
+        if (resultado.rows.length === 0) {
+            return res.status(401).json({ message: 'Email ou senha incorretos' });
         }
-        //Login realizado com sucesso
+
+        const usuario = resultado.rows[0];
+
+        console.log(usuario.senha);
+
+        const senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+
+        console.log(senhaCorreta);
+
+        if (!senhaCorreta) {
+            return res.status(401).json({ message: 'Email ou senha incorretos' });
+        }
+
+        const token = jwt.sign(
+            {
+                id_usuario: usuario.id_usuario,
+                nome: usuario.nome,
+                email: usuario.email,
+                tipo_acesso: usuario.tipo_acesso
+            },
+            SECRET_KEY
+        );
+
         return res.status(200).json({
-            message: 'Login realizado',
-            usuario: { id_usuario: usuario.id_usuario, nome: usuario.nome }
-        })
+            message: 'Login realizado com sucesso',
+            token
+        });
+
     } catch (error) {
-        console.error('Erro ao realizar login', error.message)
-        return res.status(500).json({ message: "Erro interno so servidor" + error.message })
+        console.error(error);
+
+        return res.status(500).json({
+            message: 'Erro interno'
+        });
     }
-})
+});
+
 
 export default router

@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { BD } from "../../db.js";
-import { autenticarToken } from "../../../../Barbearia/api/src/middlewares/autenticacao.js";
+import { autenticarToken } from "../middlewares/autenticacao.js";
 
 const router = Router();
 
 //Criando o endpoint para listar todas as transacoes
-router.get('/transacoes', async (req, res) => {
+router.get('/transacoes', autenticarToken, async (req, res) => {
     try {
         //cria uma variavel para enviar o comando sql
         const query = `SELECT
@@ -101,7 +101,7 @@ router.delete('/transacoes/:id_transacao', autenticarToken, async (req, res) => 
 })
 
 // Listando transações por tipo (E ou S)
-router.get('/transacoes/tipo/:tipo', async (req, res) => {
+router.get('/transacoes/tipo/:tipo', autenticarToken, async (req, res) => {
     const { tipo } = req.params;
     try {
         if (tipo !== 'E' && tipo !== 'S') {
@@ -132,7 +132,7 @@ router.get('/transacoes/tipo/:tipo', async (req, res) => {
 });
 
 // Listando transações por categoria
-router.get('/transacoes/categoria/:id_categoria', async (req, res) => {
+router.get('/transacoes/categoria/:id_categoria', autenticarToken, async (req, res) => {
     const { id_categoria } = req.params;
     try {
         const query = `SELECT
@@ -160,7 +160,7 @@ router.get('/transacoes/categoria/:id_categoria', async (req, res) => {
 });
 
 // listar transações por periodo
-router.get('/transacoes/periodo', async (req, res) => {
+router.get('/transacoes/periodo', autenticarToken, async (req, res) => {
     const { data_inicio, data_fim } = req.query;
     try {
         if (!data_inicio || !data_fim) {
@@ -198,7 +198,7 @@ router.get('/transacoes/periodo', async (req, res) => {
 });
 
 // Listando transações por subcategoria
-router.get('/transacoes/subcategoria/:id_subcategoria', async (req, res) => {
+router.get('/transacoes/subcategoria/:id_subcategoria', autenticarToken, async (req, res) => {
     const { id_subcategoria } = req.params;
     try {
         const query = `SELECT
@@ -231,7 +231,7 @@ router.post('/transacoes/agendar', autenticarToken, async (req, res) => {
     const { valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria } = req.body;
     try {
         const hoje = new Date();
-        hoje.setHours(0,0,0,0);
+        hoje.setHours(0, 0, 0, 0);
 
         const consulta = `SELECT id_transacao FROM transacoes WHERE data_vencimento = TO_DATE($1, 'YYYY-MM-DD') AND id_categoria = $2 AND id_usuario = $3
         `;
@@ -241,7 +241,7 @@ router.post('/transacoes/agendar', autenticarToken, async (req, res) => {
         }
 
         const dataVencimento = new Date(data_vencimento);
-        dataVencimento.setHours(0,0,0,0);
+        dataVencimento.setHours(0, 0, 0, 0);
 
         if (dataVencimento < hoje) {
             return res.status(400).json({ message: 'Data de vencimento deve ser futura.' });
@@ -252,7 +252,7 @@ router.post('/transacoes/agendar', autenticarToken, async (req, res) => {
         await BD.query(comando, valores)
         return res.status(201).json("Transacao agendada com sucesso.");
     }
-    catch (error) { 
+    catch (error) {
         console.error('Erro ao agendar transacao', error.message);
         return res.status(500).json({ error: 'Erro ao agendar transacao' + error.message })
     }

@@ -17,6 +17,9 @@ const documentacao = {
         { url: 'http://localhost:3000', description: 'Desenvolvimento' },
         { url: 'https://api.financecontrol.com', description: 'Produção' }
     ],
+    security: [
+        { bearerAuth: [] }
+    ],
     tags: [
         { name: 'Autenticação', description: 'Autenticação e login do sistema' },
         { name: 'Usuários', description: 'Operações relacionadas aos usuários' },
@@ -29,6 +32,7 @@ const documentacao = {
             get: {
                 tags: ["Usuários"],
                 summary: "Listar todos os usuários",
+                security: [{ bearerAuth: [] }],
                 responses: {
                     200: {
                         description: "Dados obtidos com sucesso!",
@@ -46,6 +50,7 @@ const documentacao = {
             post: {
                 tags: ['Usuários'],
                 summary: 'Cadastrar novo usuário',
+                security: [{ bearerAuth: [] }],
                 requestBody: {
                     required: true,
                     content: {
@@ -104,6 +109,7 @@ const documentacao = {
             post: {
                 tags: ['Autenticação'],
                 summary: 'Login',
+                security: [],
                 requestBody: {
                     required: true,
                     content: {
@@ -163,6 +169,7 @@ const documentacao = {
             get: {
                 tags: ["Transações"],
                 summary: "Listar transações",
+                security: [{ bearerAuth: [] }],
                 responses: {
                     200: {
                         content: {
@@ -198,6 +205,7 @@ const documentacao = {
                 tags: ['Transações'],
                 summary: 'Filtrar por tipo',
                 description: 'E = entrada | S = saída',
+                security: [{ bearerAuth: [] }],
                 parameters: [{
                     name: "tipo",
                     in: "path",
@@ -230,6 +238,7 @@ const documentacao = {
             get: {
                 tags: ['Transações'],
                 summary: 'Filtrar transações por categoria',
+                security: [{ bearerAuth: [] }],
                 parameters: [{
                     name: 'id_categoria',
                     in: 'path',
@@ -258,6 +267,7 @@ const documentacao = {
             get: {
                 tags: ['Transações'],
                 summary: 'Filtrar transações por subcategoria',
+                security: [{ bearerAuth: [] }],
                 parameters: [{
                     name: 'id_subcategoria',
                     in: 'path',
@@ -286,6 +296,7 @@ const documentacao = {
             get: {
                 tags: ['Transações'],
                 summary: 'Filtrar transações por período',
+                security: [{ bearerAuth: [] }],
                 parameters: [
                     {
                         name: 'data_inicio',
@@ -330,32 +341,180 @@ const documentacao = {
                     }
                 }
             }
-        }
-    },
-    "/transacoes/agendar": {
-        post: {
-            tags: ['Transações'],
-            summary: 'Agendar transação',
-            description: 'Permite agendar uma transação para uma data futura, com opção de definir data de vencimento e pagamento',
-            security: [{ bearerAuth: [] }],
-            requestBody: {
-                required: true,
-                content: {
-                    'application/json': {
-                        schema: { $ref: '#/components/schemas/Cadastrar_Transacao' }
+        },
+        "/transacoes/agendar": {
+            post: {
+                tags: ['Transações'],
+                summary: 'Agendar transação',
+                description: 'Permite agendar uma transação para uma data futura, com opção de definir data de vencimento e pagamento',
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: { $ref: '#/components/schemas/Cadastrar_Transacao' }
+                        }
                     }
-                }
-            },
-            responses: {
-                201: {
-                    description: 'Transação agendada com sucesso'
                 },
-                400: {
-                    description: 'Dados inválidos para agendamento da transação'
+                responses: {
+                    201: {
+                        description: 'Transação agendada com sucesso'
+                    },
+                    400: {
+                        description: 'Dados inválidos para agendamento da transação'
+                    }
                 }
             }
         }
     },
+    "/dashboard":{
+        get: {
+            tags: ['Dashboard'],
+            summary: 'Obter dados do dashboard',
+            description: 'Retorna dados resumidos para exibição no dashboard, como faturamento total, faturamento confirmado e total de cancelados do mês atual',
+            security: [{ bearerAuth: [] }],
+            responses: {
+                200: {
+                    description: 'Dados do dashboard obtidos com sucesso',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    resumoMesAtual: {
+                                        type: 'object',
+                                        properties: {
+                                            faturamento_total: { type: 'number', example: 5000.00 },
+                                            faturamento_confirmado: { type: 'number', example: 4500.00 },
+                                            total_cancelados: { type: 'integer', example: 3 }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+    }
+            }
+        }
+    },
+
+    "dashboard/gastos-categoria": {
+        get: {
+            tags: ['Dashboard'],
+            summary: 'Obter gastos por categoria',
+            description: 'Retorna o total gasto por categoria no mês atual para exibição em gráfico de pizza',
+            security: [{ bearerAuth: [] }],
+            responses: {
+                200: {
+                    description: 'Dados de gastos por categoria obtidos com sucesso',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        categoria: { type: 'string', example: 'Alimentação' },
+                                        total: { type: 'number', example: 1500.00 }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+        "dashboard/maiores-gastos": {
+        get: {
+            tags: ['Dashboard'],
+            summary: 'Obter maiores gastos do mês',
+            description: 'Retorna as maiores transações de saída do mês atual para exibição em gráfico de barras',
+            security: [{ bearerAuth: [] }],
+            responses: {
+                200: {                                                                                                                                                                  
+                    description: 'Dados de maiores gastos obtidos com sucesso',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        descricao: { type: 'string', example: 'Aluguel' },
+                                        valor: { type: 'number', example: 2000.00 }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    "dashboard/extrato": {
+        get: {
+            tags: ['Dashboard'],
+            summary: 'Obter extrato do mês',
+            description: 'Retorna as últimas transações do mês atual para exibição no extrato',
+            security: [{ bearerAuth: [] }],
+            responses: {
+                200: {
+                    description: 'Dados do extrato obtidos com sucesso',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {   
+                                        descricao: { type: 'string', example: 'Supermercado' },
+                                        valor: { type: 'number', example: 300.00 },
+                                        data_registro: { type: 'string', example: '2024-01-15' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    "dashboard/ultimas-transacoes": {
+        get: {
+            tags: ['Dashboard'],
+            summary
+: 'Obter últimas transações',
+
+            description: 'Retorna as últimas transações do mês atual para exibição em lista de últimas movimentações',
+            security: [{ bearerAuth: [] }],
+            responses: {
+                200: {
+                    description: 'Dados das últimas transações obtidos com sucesso',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        descricao: { type: 'string', example: 'Pagamento de luz' },
+                                        valor: { type: 'number', example: 150.00 },
+                                        data_registro: { type: 'string', example: '2024-01-10' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+
 
 
     components: {
@@ -363,7 +522,7 @@ const documentacao = {
             Listar_Usuarios: {
                 type: 'object',
                 properties: {
-                    id: { type: "integer", example: 1 },
+                    id_usuario: { type: "integer", example: 1 },
                     nome: { type: "string", example: "Ricardo" },
                     email: { type: "string", example: "ricardo@email.com" }
                 }
@@ -404,9 +563,12 @@ const documentacao = {
                         type: 'object',
                         properties: {
                             id_usuario: { type: "integer" },
-                            nome: { type: "string" }
+                            nome: { type: "string" },
+                            email: { type: "string" },
+                            tipo: { type: "string" }
                         }
-                    }
+                    },
+                    token: { type: 'string' }
                 }
             },
 
@@ -416,6 +578,18 @@ const documentacao = {
                     id_categoria: { type: "integer" },
                     nome: { type: "string" },
                     tipo: { type: "string", example: "S" }
+                }
+            },
+
+            Cadastrar_Categoria: {
+                type: 'object',
+                properties: {
+                    nome: { type: "string" },
+                    descricao: { type: "string" },
+                    cor: { type: "string" },
+                    icone: { type: "string" },
+                    tipo: { type: "string" },
+                    ativo: { type: "boolean" }
                 }
             },
 
@@ -453,6 +627,13 @@ const documentacao = {
                     tipo: { type: "string", example: "E" },
                     id_categoria: { type: "integer" }
                 }
+            }
+        },
+        securitySchemes: {
+            bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT'
             }
         }
     }

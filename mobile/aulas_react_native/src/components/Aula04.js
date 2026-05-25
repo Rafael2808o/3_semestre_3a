@@ -1,7 +1,6 @@
 import { View, Text} from "react-native";
 import Hr from "./Hr";
-import Aula03_Exercicio from "./Aula03_Exercicio";
-import Aula03_Exercicio2 from "./Aula03_Exercicio2";
+
 
 const Aula04 = () => {
    

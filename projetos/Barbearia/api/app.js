@@ -4,6 +4,7 @@ import cors from 'cors'
 import rotasUsuarios from './src/routes/rotasUsuarios.js';
 import rotasServicos from './src/routes/rotasServicos.js';
 import rotasAgendamentos from './src/routes/rotasAgendamentos.js';
+import rotasDashboard from './src/routes/rotasDashboard.js';
 import documentacao from './config/swagger.js';
 
 const app = express();
@@ -50,6 +51,7 @@ app.use(cors())
 app.use('/usuarios', rotasUsuarios);
 app.use('/servicos', rotasServicos);
 app.use('/agendamentos', rotasAgendamentos);
+app.use('/dashboard', rotasDashboard);
 
 app.get('/', async (req, res) => {
 await testarConexao();
