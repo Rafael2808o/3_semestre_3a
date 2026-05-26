@@ -62,80 +62,80 @@ const documentacao = {
             }
         },
         "/usuarios/login": {
-    post: {
-        tags: ['Usuários'],
-        summary: 'Realizar login',
-        requestBody: {
-            required: true,
-            content: {
-                "application/json": {
-                    schema: {
-                        type: 'object',
-                        properties: {
-                            email: {
-                                type: 'string',
-                                example: 'joao@email.com'
-                            },
-                            senha: {
-                                type: 'string',
-                                example: '123456'
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        responses: {
-            200: {
-                description: 'Login realizado com sucesso',
-                content: {
-                    "application/json": {
-                        schema: {
-                            type: 'object',
-                            properties: {
-                                message: {
-                                    type: 'string',
-                                    example: 'Login realizado com sucesso'
-                                },
-                                usuario: {
-                                    type: 'object',
-                                    properties: {
-                                        id: {
-                                            type: 'integer',
-                                            example: 1
-                                        },
-                                        nome: {
-                                            type: 'string',
-                                            example: 'João Silva'
-                                        },
-                                        email: {
-                                            type: 'string',
-                                            example: 'joao@email.com'
-                                        },
-                                        tipo: {
-                                            type: 'string',
-                                            example: 'cliente'
-                                        }
+            post: {
+                tags: ['Usuários'],
+                summary: 'Realizar login',
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    email: {
+                                        type: 'string',
+                                        example: 'joao@email.com'
+                                    },
+                                    senha: {
+                                        type: 'string',
+                                        example: '123456'
                                     }
-                                },
-                                token: {
-                                    type: 'string',
-                                    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
                                 }
                             }
                         }
                     }
+                },
+                responses: {
+                    200: {
+                        description: 'Login realizado com sucesso',
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        message: {
+                                            type: 'string',
+                                            example: 'Login realizado com sucesso'
+                                        },
+                                        usuario: {
+                                            type: 'object',
+                                            properties: {
+                                                id: {
+                                                    type: 'integer',
+                                                    example: 1
+                                                },
+                                                nome: {
+                                                    type: 'string',
+                                                    example: 'João Silva'
+                                                },
+                                                email: {
+                                                    type: 'string',
+                                                    example: 'joao@email.com'
+                                                },
+                                                tipo: {
+                                                    type: 'string',
+                                                    example: 'cliente'
+                                                }
+                                            }
+                                        },
+                                        token: {
+                                            type: 'string',
+                                            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: {
+                        description: 'Email ou senha incorretos'
+                    },
+                    500: {
+                        description: 'Erro interno no servidor'
+                    }
                 }
-            },
-            401: {
-                description: 'Email ou senha incorretos'
-            },
-            500: {
-                description: 'Erro interno no servidor'
             }
-        }
-    }
-},
+        },
 
         "/usuarios/{id}": {
             get: {
@@ -452,17 +452,21 @@ const documentacao = {
                 properties: {
                     id_agendamento: { type: "integer", example: 1 },
                     id_cliente: { type: "integer", example: 1 },
+                    id_barbeiro: { type: "integer", example: 1 },
                     id_servico: { type: "integer", example: 1 },
                     data_hora: { type: "string", format: "date-time", example: "2024-05-10T14:30:00" },
+                    preco: { type: "number", example: 50.00 },
                     status: { type: "string", example: "confirmado" }
                 }
             },
 
             Cadastrar_Agendamento: {
                 type: 'object',
+                required: ['id_cliente', 'id_servico', 'id_barbeiro', 'data_hora', 'status'],
                 properties: {
                     id_cliente: { type: "integer", example: 1 },
                     id_servico: { type: "integer", example: 1 },
+                    id_barbeiro: { type: "integer", example: 1 },
                     data_hora: { type: "string", format: "date-time", example: "2024-05-10T14:30:00" },
                     status: { type: "string", example: "confirmado" }
                 }
