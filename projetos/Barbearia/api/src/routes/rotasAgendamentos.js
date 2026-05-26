@@ -26,7 +26,8 @@ router.post('/', autenticarToken, async (req, res) => {
         return res.status(201).json({ message: "Agendamento cadastrado." });
     } catch (error) {
         console.error('Erro ao cadastrar agendamento', error.message);
-        return res.status(500).json({ error: 'Erro ao cadastrar agendamento' })
+        console.error('Detalhes do erro:', error);
+        return res.status(500).json({ error: 'Erro ao cadastrar agendamento', detalhes: error.message })
     }
 })
 
@@ -55,7 +56,7 @@ router.put('/:id', async (req, res) => {
         if (verificarAgendamento.rows.length === 0) {
             return res.status(404).json({ message: 'Agendamento não encontrado' })
         }
-        
+
         const comando = `UPDATE agendamentos SET id_cliente = $1, id_servico = $2, data_hora = $3, status = $4 WHERE id_agendamento = $5`;
         const valores = [id_cliente, id_servico, data_hora, status, id];
         await BD.query(comando, valores);

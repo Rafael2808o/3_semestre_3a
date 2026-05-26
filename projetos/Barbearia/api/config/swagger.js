@@ -13,8 +13,8 @@ const documentacao = {
         }
     },
     servers: [
-        { url: 'http://localhost:3000', description: 'Desenvolvimento' },
-        { url: 'https://api.barbearia.com', description: 'Produção' }
+        { url: 'https://apibarbearia-rho.vercel.app', description: 'Desenvolvimento' },
+
     ],
     security: [
         { bearerAuth: [] }
