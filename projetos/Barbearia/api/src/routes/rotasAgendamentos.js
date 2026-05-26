@@ -19,8 +19,20 @@ router.get('/', autenticarToken, async (req, res) => {
 router.post('/', autenticarToken, async (req, res) => {
     const { id_cliente, id_servico, id_barbeiro, data_hora, status } = req.body;
     try {
-        const comando = `INSERT INTO agendamentos(id_cliente, id_servico, id_barbeiro, data_hora, status) VALUES($1, $2, $3, $4, $5)`
-        const valores = [id_cliente, id_servico, id_barbeiro, data_hora, status];
+        // Buscar o preço do serviço
+        const resultadoPreco = await BD.query(
+            `SELECT preco FROM servicos WHERE id_servico = $1`,
+            [id_servico]
+        );
+
+        if (resultadoPreco.rows.length === 0) {
+            return res.status(404).json({ error: 'Serviço não encontrado' });
+        }
+
+        const preco = resultadoPreco.rows[0].preco;
+
+        const comando = `INSERT INTO agendamentos(id_cliente, id_servico, id_barbeiro, data_hora, preco, status) VALUES($1, $2, $3, $4, $5, $6)`
+        const valores = [id_cliente, id_servico, id_barbeiro, data_hora, preco, status];
 
         await BD.query(comando, valores);
         return res.status(201).json({ message: "Agendamento cadastrado." });
@@ -57,8 +69,20 @@ router.put('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Agendamento não encontrado' })
         }
 
-        const comando = `UPDATE agendamentos SET id_cliente = $1, id_servico = $2, id_barbeiro = $3, data_hora = $4, status = $5 WHERE id_agendamento = $6`;
-        const valores = [id_cliente, id_servico, id_barbeiro, data_hora, status, id];
+        // Buscar o preço do serviço
+        const resultadoPreco = await BD.query(
+            `SELECT preco FROM servicos WHERE id_servico = $1`,
+            [id_servico]
+        );
+
+        if (resultadoPreco.rows.length === 0) {
+            return res.status(404).json({ error: 'Serviço não encontrado' });
+        }
+
+        const preco = resultadoPreco.rows[0].preco;
+
+        const comando = `UPDATE agendamentos SET id_cliente = $1, id_servico = $2, id_barbeiro = $3, data_hora = $4, preco = $5, status = $6 WHERE id_agendamento = $7`;
+        const valores = [id_cliente, id_servico, id_barbeiro, data_hora, preco, status, id];
         await BD.query(comando, valores);
 
         return res.status(200).json({ message: 'Agendamento foi atualizado!' });
