@@ -15,7 +15,7 @@ function CRUDUsuarios() {
 
     async function listarUsuarios() {
         try {
-            const resposta = await fetch('http://localhost:3000/usuarios', {
+            const resposta = await fetch('https://apibarbearia-rho.vercel.app/usuarios', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -37,8 +37,8 @@ function CRUDUsuarios() {
 
         const metodo = idEditando ? 'PUT' : 'POST'
         const url = idEditando
-            ? `http://localhost:3000/usuarios/${idEditando}`
-            : 'http://localhost:3000/usuarios'
+            ? `https://apibarbearia-rho.vercel.app/usuarios/${idEditando}`
+            : 'https://apibarbearia-rho.vercel.app/usuarios'
 
         try {
             await fetch(url, {
@@ -72,7 +72,7 @@ function CRUDUsuarios() {
 
     async function deletarUsuario(id) {
         try {
-            await fetch(`http://localhost:3000/usuarios/${id}`, {
+            await fetch(`https://apibarbearia-rho.vercel.app/usuarios/${id}`, {
                 method: 'DELETE'
             })
 

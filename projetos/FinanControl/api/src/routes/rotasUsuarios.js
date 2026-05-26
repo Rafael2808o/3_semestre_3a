@@ -8,17 +8,13 @@ const SECRET_KEY = 'sua_chave_secreta';
 
 const router = Router();
 
-//Criando o endpoint para listar todos os usuarios
 router.get('/usuarios', autenticarToken, async (req, res) => {
     try {
-        //cria uma variavel para enviar o comando sql
         const query = `SELECT * FROM usuarios ORDER BY id_usuario`
 
-        //cria uma variavel para receber o retorno do sql
         const usuarios = await BD.query(query);
 
-        //retorno para a pagina, o json com os dados 
-        //buscados do sql
+
         return res.status(200).json(usuarios.rows);//200 ok
     } catch (error) {
         console.error('Erro ao listar usuários', error.message);
@@ -26,17 +22,14 @@ router.get('/usuarios', autenticarToken, async (req, res) => {
     }
 })
 
-//Endpoint seguro contra sql Injection
-router.post('/usuarios', autenticarToken, async (req, res) => {
-    const { nome, email, senha, tipo_acesso } = req.body;
+router.post('/usuarios', async (req, res) => {
+    const { nome, email, senha } = req.body;
     try {
-        //definindo a força da criptografia
         const saltRounds = 10
-        //gerando o hash da senha
         const senhaCriptografada = await bcrypt.hash(senha, saltRounds)
 
-        const comando = `INSERT INTO USUARIOS(nome, email, senha, tipo_acesso) VALUES($1, $2, $3, $4)`
-        const valores = [nome, email, senhaCriptografada, tipo_acesso];
+        const comando = `INSERT INTO USUARIOS(nome, email, senha) VALUES($1, $2, $3)`
+        const valores = [nome, email, senhaCriptografada];
 
         await BD.query(comando, valores)
         console.log(comando, valores);
@@ -48,28 +41,22 @@ router.post('/usuarios', autenticarToken, async (req, res) => {
     }
 })
 
-// endpoint para atualizar um unico usuário
-// recebendo o parametro pelo id e buscando o usuario
+
 router.put('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
-    // Id recebido via parametro
     const { id_usuario } = req.params;
 
-    // Dados do usuario recebido via Corpo da página
-    const { nome, email, senha, tipo_acesso } = req.body;
+    const { nome, email, senha } = req.body;
     try {
-        //Verificar se o usuario existe
         const verificarUsuario = await BD.query(`SELECT * FROM USUARIOS
             WHERE id_usuario = $1`, [id_usuario])
         if (verificarUsuario.rows.length === 0) {
             return res.status(404).json({ message: 'Usuario não encontrado' })
         }
-        // Criptografar a senha
         const saltRounds = 10
         const senhaCriptografada = await bcrypt.hash(senha, saltRounds)
-        // Atualiza todos os campos da tabela(PUT Substituição completa)
-        const comando = `UPDATE USUARIOS SET nome = $1, email = $2, senha =$3, tipo_acesso = $4 WHERE
-        id_usuario = $5`;
-        const valores = [nome, email, senhaCriptografada, tipo_acesso, id_usuario];
+        const comando = `UPDATE USUARIOS SET nome = $1, email = $2, senha = $3 WHERE
+        id_usuario = $4`;
+        const valores = [nome, email, senhaCriptografada, id_usuario];
         await BD.query(comando, valores);
 
         return res.status(200).json('Usuario foi atualizado!');
@@ -79,20 +66,17 @@ router.put('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
     }
 })
 
-//Rota patch atualizando parcialmente as informações
 router.patch('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
     const { id_usuario } = req.params;
     const { nome, email, senha } = req.body;
 
     try {
-        //Verificar se o usuario existe
         const verificarUsuario = await BD.query(`SELECT * FROM USUARIOS
             WHERE id_usuario = $1`, [id_usuario])
         if (verificarUsuario.rows.length === 0) {
             return res.status(404).json({ message: 'Usuario não encontrado' })
         }
 
-        //Montar o update dinamicamente(apenas campos enviados)
         const campos = [];
         const valores = [];
         let contador = 1;
@@ -115,15 +99,12 @@ router.patch('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
             contador++;
         }
 
-        //se nenhum campo foi enviado
         if (campos.length === 0) {
             return res.status(400).json({ message: "Nenhum campo a atualizar" })
         }
 
-        //Adicionando ID ao final de valores
         valores.push(id_usuario)
 
-        //montando a query dinamicamente
         const comando = `UPDATE USUARIOS SET ${campos.join(', ')} WHERE id_usuario = $${contador}`
         await BD.query(comando, valores)
 
@@ -137,7 +118,6 @@ router.patch('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
 router.delete('/usuarios/:id_usuario', autenticarToken, async (req, res) => {
     const { id_usuario } = req.params;
     try {
-        //Executa o comando de delete
         const comando = `DELETE FROM USUARIOS WHERE id_usuario = $1`
         await BD.query(comando, [id_usuario])
         return res.status(200).json({ message: "Usuario removido com sucesso" })

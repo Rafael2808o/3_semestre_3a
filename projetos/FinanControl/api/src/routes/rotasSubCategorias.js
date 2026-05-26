@@ -25,6 +25,12 @@ router.get('/subcategorias', async (req, res) => {
 router.post('/subcategorias', async (req, res) => {
     const { nome, ativo, id_categoria } = req.body;
     try {
+        // Validar se a categoria existe
+        const verificarCategoria = await BD.query(`SELECT * FROM categorias WHERE id_categoria = $1`, [id_categoria])
+        if (verificarCategoria.rows.length === 0) {
+            return res.status(404).json({ message: 'Categoria não encontrada' })
+        }
+
         const comando = `INSERT INTO subcategorias(nome, ativo, id_categoria) VALUES($1, $2, $3)`
         const valores = [nome, ativo, id_categoria];
 
@@ -53,6 +59,13 @@ router.put('/subcategorias/:id_subcategoria', async (req, res) => {
         if (verificarSubcategoria.rows.length === 0) {
             return res.status(404).json({ message: 'Subcategoria não encontrada' })
         }
+
+        // Verificar se a categoria existe
+        const verificarCategoria = await BD.query(`SELECT * FROM categorias WHERE id_categoria = $1`, [id_categoria])
+        if (verificarCategoria.rows.length === 0) {
+            return res.status(404).json({ message: 'Categoria não encontrada' })
+        }
+
         // Atualiza todos os campos da tabela(PUT Substituição completa)
         const comando = `UPDATE subcategorias SET nome = $1, ativo = $2, id_categoria = $3 WHERE
         id_subcategoria = $4`;
@@ -77,6 +90,14 @@ router.patch('/subcategorias/:id_subcategoria', async (req, res) => {
             WHERE id_subcategoria = $1`, [id_subcategoria])
         if (verificarSubcategoria.rows.length === 0) {
             return res.status(404).json({ message: 'Subcategoria não encontrada' })
+        }
+
+        // Verificar se a categoria existe (se for fornecida)
+        if (id_categoria !== undefined) {
+            const verificarCategoria = await BD.query(`SELECT * FROM categorias WHERE id_categoria = $1`, [id_categoria])
+            if (verificarCategoria.rows.length === 0) {
+                return res.status(404).json({ message: 'Categoria não encontrada' })
+            }
         }
 
         //Montar o update dinamicamente(apenas campos enviados)
@@ -122,6 +143,12 @@ router.patch('/subcategorias/:id_subcategoria', async (req, res) => {
 router.delete('/subcategorias/:id_subcategoria', async (req, res) => {
     const { id_subcategoria } = req.params;
     try {
+        //Verificar se a subcategoria existe
+        const verificarSubcategoria = await BD.query(`SELECT * FROM subcategorias WHERE id_subcategoria = $1`, [id_subcategoria])
+        if (verificarSubcategoria.rows.length === 0) {
+            return res.status(404).json({ message: 'Subcategoria não encontrada' })
+        }
+
         //Executa o comando de delete
         const comando = `DELETE FROM subcategorias WHERE id_subcategoria = $1`
         await BD.query(comando, [id_subcategoria])

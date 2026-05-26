@@ -6,6 +6,7 @@ function CRUDAgendamentos() {
 
     const [idCliente, setIdCliente] = useState('')
     const [idServico, setIdServico] = useState('')
+    const [idBarbeiro, setIdBarbeiro] = useState('')
     const [dataHora, setDataHora] = useState('')
     const [status, setStatus] = useState('')
 
@@ -15,7 +16,7 @@ function CRUDAgendamentos() {
 
     async function listarAgendamentos() {
         try {
-            const resposta = await fetch('http://localhost:3000/agendamentos', {
+            const resposta = await fetch('https://apibarbearia-rho.vercel.app/agendamentos', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -38,8 +39,8 @@ function CRUDAgendamentos() {
         const metodo = idEditando ? 'PUT' : 'POST'
 
         const url = idEditando
-            ? `http://localhost:3000/agendamentos/${idEditando}`
-            : 'http://localhost:3000/agendamentos'
+            ? `https://apibarbearia-rho.vercel.app/agendamentos/${idEditando}`
+            : 'https://apibarbearia-rho.vercel.app/agendamentos'
 
         try {
             await fetch(url, {
@@ -51,6 +52,7 @@ function CRUDAgendamentos() {
                 body: JSON.stringify({
                     id_cliente: idCliente,
                     id_servico: idServico,
+                    id_barbeiro: idBarbeiro,
                     data_hora: dataHora,
                     status
                 })
@@ -68,13 +70,14 @@ function CRUDAgendamentos() {
         setIdEditando(agendamento.id_agendamento)
         setIdCliente(agendamento.id_cliente)
         setIdServico(agendamento.id_servico)
+        setIdBarbeiro(agendamento.id_barbeiro)
         setDataHora(agendamento.data_hora)
         setStatus(agendamento.status)
     }
 
     async function deletarAgendamento(id) {
         try {
-            await fetch(`http://localhost:3000/agendamentos/${id}`, {
+            await fetch(`https://apibarbearia-rho.vercel.app/agendamentos/${id}`, {
                 method: 'DELETE'
             })
 
@@ -88,6 +91,7 @@ function CRUDAgendamentos() {
     function limparCampos() {
         setIdCliente('')
         setIdServico('')
+        setIdBarbeiro('')
         setDataHora('')
         setStatus('')
         setIdEditando(null)
@@ -109,6 +113,13 @@ function CRUDAgendamentos() {
                 placeholder="ID Serviço"
                 value={idServico}
                 onChange={(e) => setIdServico(e.target.value)}
+            />
+
+            <input
+                type="number"
+                placeholder="ID Barbeiro"
+                value={idBarbeiro}
+                onChange={(e) => setIdBarbeiro(e.target.value)}
             />
 
             <input

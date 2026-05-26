@@ -14,7 +14,7 @@ function CRUDServicos() {
 
     async function listarServicos() {
         try {
-            const resposta = await fetch('http://localhost:3000/servicos', {
+            const resposta = await fetch('https://apibarbearia-rho.vercel.app/servicos', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -37,8 +37,8 @@ function CRUDServicos() {
         const metodo = idEditando ? 'PUT' : 'POST'
 
         const url = idEditando
-            ? `http://localhost:3000/servicos/${idEditando}`
-            : 'http://localhost:3000/servicos'
+            ? `https://apibarbearia-rho.vercel.app/servicos/${idEditando}`
+            : 'https://apibarbearia-rho.vercel.app/servicos'
 
         try {
             await fetch(url, {
@@ -71,7 +71,7 @@ function CRUDServicos() {
 
     async function deletarServico(id) {
         try {
-            await fetch(`http://localhost:3000/servicos/${id}`, {
+            await fetch(`https://apibarbearia-rho.vercel.app/servicos/${id}`, {
                 method: 'DELETE'
             })
 

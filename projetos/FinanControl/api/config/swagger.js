@@ -14,19 +14,20 @@ const documentacao = {
         }
     },
     servers: [
-        { url: 'http://localhost:3000', description: 'Desenvolvimento' },
-        { url: 'https://api.financecontrol.com', description: 'Produção' }
+        { url: 'https://api-financontrol-sooty.vercel.app', description: 'Render' }
+
     ],
     security: [
         { bearerAuth: [] }
     ],
-    tags: [
-        { name: 'Autenticação', description: 'Autenticação e login do sistema' },
-        { name: 'Usuários', description: 'Operações relacionadas aos usuários' },
-        { name: 'Categorias', description: 'Operações relacionadas às categorias' },
-        { name: 'Subcategorias', description: 'Operações relacionadas às subcategorias' },
-        { name: 'Transações', description: 'Operações relacionadas às transações' }
-    ],
+tags: [
+    { name: 'Autenticação', description: 'Autenticação e login do sistema' },
+    { name: 'Usuários', description: 'Operações relacionadas aos usuários' },
+    { name: 'Categorias', description: 'Operações relacionadas às categorias' },
+    { name: 'Subcategorias', description: 'Operações relacionadas às subcategorias' },
+    { name: 'Transações', description: 'Operações relacionadas às transações' },
+    { name: 'Dashboard', description: 'Indicadores e relatórios financeiros' }
+],
     paths: {
         "/usuarios": {
             get: {
@@ -161,6 +162,171 @@ const documentacao = {
                 },
                 responses: {
                     201: { description: "Categoria criada" }
+                }
+            }
+        },
+
+        "/categorias/{id_categoria}": {
+            put: {
+                tags: ['Categorias'],
+                summary: 'Atualizar categoria',
+                parameters: [{
+                    name: "id_categoria",
+                    in: "path",
+                    required: true,
+                    schema: { type: 'integer', example: 1 }
+                }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/Atualizar_Categoria" }
+                        }
+                    }
+                },
+                responses: {
+                    200: { description: "Categoria atualizada com sucesso" },
+                    404: { description: "Categoria não encontrada" },
+                    500: { description: "Erro ao atualizar categoria" }
+                }
+            },
+            patch: {
+                tags: ['Categorias'],
+                summary: 'Atualizar parcialmente categoria',
+                parameters: [{
+                    name: "id_categoria",
+                    in: "path",
+                    required: true,
+                    schema: { type: 'integer', example: 1 }
+                }],
+                requestBody: {
+                    required: false,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/Atualizar_Categoria" }
+                        }
+                    }
+                },
+                responses: {
+                    200: { description: "Categoria atualizada parcialmente com sucesso" },
+                    404: { description: "Categoria não encontrada" },
+                    500: { description: "Erro ao atualizar categoria" }
+                }
+            },
+            delete: {
+                tags: ['Categorias'],
+                summary: 'Remover categoria',
+                parameters: [{
+                    name: "id_categoria",
+                    in: "path",
+                    required: true,
+                    schema: { type: 'integer', example: 1 }
+                }],
+                responses: {
+                    200: { description: "Categoria removida com sucesso" },
+                    404: { description: "Categoria não encontrada" },
+                    500: { description: "Erro ao remover categoria" }
+                }
+            }
+        },
+
+        "/subcategorias": {
+            get: {
+                tags: ["Subcategorias"],
+                summary: "Listar todas as subcategorias",
+                responses: {
+                    200: {
+                        description: "Subcategorias listadas com sucesso",
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "array",
+                                    items: { $ref: '#/components/schemas/Listar_Subcategorias' }
+                                }
+                            }
+                        }
+                    },
+                    500: { description: "Erro ao listar subcategorias" }
+                }
+            },
+            post: {
+                tags: ['Subcategorias'],
+                summary: 'Cadastrar nova subcategoria',
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/Cadastrar_Subcategoria" }
+                        }
+                    }
+                },
+                responses: {
+                    201: { description: "Subcategoria cadastrada com sucesso" },
+                    500: { description: "Erro ao cadastrar subcategoria" }
+                }
+            }
+        },
+
+        "/subcategorias/{id_subcategoria}": {
+            put: {
+                tags: ['Subcategorias'],
+                summary: 'Atualizar subcategoria',
+                parameters: [{
+                    name: "id_subcategoria",
+                    in: "path",
+                    required: true,
+                    schema: { type: 'integer', example: 1 }
+                }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/Atualizar_Subcategoria" }
+                        }
+                    }
+                },
+                responses: {
+                    200: { description: "Subcategoria atualizada com sucesso" },
+                    404: { description: "Subcategoria não encontrada" },
+                    500: { description: "Erro ao atualizar subcategoria" }
+                }
+            },
+            patch: {
+                tags: ['Subcategorias'],
+                summary: 'Atualizar parcialmente subcategoria',
+                parameters: [{
+                    name: "id_subcategoria",
+                    in: "path",
+                    required: true,
+                    schema: { type: 'integer', example: 1 }
+                }],
+                requestBody: {
+                    required: false,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/Atualizar_Subcategoria" }
+                        }
+                    }
+                },
+                responses: {
+                    200: { description: "Subcategoria atualizada parcialmente com sucesso" },
+                    404: { description: "Subcategoria não encontrada" },
+                    500: { description: "Erro ao atualizar subcategoria" }
+                }
+            },
+            delete: {
+                tags: ['Subcategorias'],
+                summary: 'Remover subcategoria',
+                parameters: [{
+                    name: "id_subcategoria",
+                    in: "path",
+                    required: true,
+                    schema: { type: 'integer', example: 1 }
+                }],
+                responses: {
+                    200: { description: "Subcategoria removida com sucesso" },
+                    404: { description: "Subcategoria não encontrada" },
+                    500: { description: "Erro ao remover subcategoria" }
                 }
             }
         },
@@ -365,157 +531,157 @@ const documentacao = {
                     }
                 }
             }
-        }
-    },
-    "/dashboard":{
-        get: {
-            tags: ['Dashboard'],
-            summary: 'Obter dados do dashboard',
-            description: 'Retorna dados resumidos para exibição no dashboard, como faturamento total, faturamento confirmado e total de cancelados do mês atual',
-            security: [{ bearerAuth: [] }],
-            responses: {
-                200: {
-                    description: 'Dados do dashboard obtidos com sucesso',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'object',
-                                properties: {
-                                    resumoMesAtual: {
-                                        type: 'object',
+        },
+"/dashboard": {
+    get: {
+        tags: ["Dashboard"],
+        summary: "Obter dados completos do dashboard",
+        description: "Retorna resumo financeiro, gastos por categoria, maiores gastos, extrato, últimas transações e evolução semanal",
+        security: [{ bearerAuth: [] }],
+        responses: {
+            200: {
+                description: "Dados obtidos com sucesso",
+                content: {
+                    "application/json": {
+                        schema: {
+                            type: "object",
+                            properties: {
+                                resumoMesAtual: {
+                                    type: "object",
+                                    properties: {
+                                        entradas: {
+                                            type: "number",
+                                            example: 5000.00
+                                        },
+                                        saidas: {
+                                            type: "number",
+                                            example: 2500.00
+                                        },
+                                        saldo: {
+                                            type: "number",
+                                            example: 2500.00
+                                        }
+                                    }
+                                },
+                                gastosPorCategoria: {
+                                    type: "array",
+                                    items: {
+                                        type: "object",
                                         properties: {
-                                            faturamento_total: { type: 'number', example: 5000.00 },
-                                            faturamento_confirmado: { type: 'number', example: 4500.00 },
-                                            total_cancelados: { type: 'integer', example: 3 }
+                                            categoria: {
+                                                type: "string",
+                                                example: "Alimentação"
+                                            },
+                                            total: {
+                                                type: "number",
+                                                example: 1200.00
+                                            }
+                                        }
+                                    }
+                                },
+                                maioresGastos: {
+                                    type: "array",
+                                    items: {
+                                        type: "object",
+                                        properties: {
+                                            descricao: {
+                                                type: "string",
+                                                example: "Aluguel"
+                                            },
+                                            valor: {
+                                                type: "number",
+                                                example: 1800.00
+                                            }
+                                        }
+                                    }
+                                },
+                                extrato: {
+                                    type: "array",
+                                    items: {
+                                        type: "object",
+                                        properties: {
+                                            descricao: {
+                                                type: "string",
+                                                example: "Mercado"
+                                            },
+                                            valor: {
+                                                type: "number",
+                                                example: 150.00
+                                            },
+                                            tipo: {
+                                                type: "string",
+                                                example: "D"
+                                            },
+                                            data_registro: {
+                                                type: "string",
+                                                example: "2026-05-26T10:30:00.000Z"
+                                            }
+                                        }
+                                    }
+                                },
+                                ultimasTransacoes: {
+                                    type: "array",
+                                    items: {
+                                        type: "object",
+                                        properties: {
+                                            descricao: {
+                                                type: "string",
+                                                example: "Salário"
+                                            },
+                                            valor: {
+                                                type: "number",
+                                                example: 3000.00
+                                            },
+                                            tipo: {
+                                                type: "string",
+                                                example: "R"
+                                            },
+                                            data_registro: {
+                                                type: "string",
+                                                example: "2026-05-26T10:30:00.000Z"
+                                            }
+                                        }
+                                    }
+                                },
+                                evolucao: {
+                                    type: "array",
+                                    items: {
+                                        type: "object",
+                                        properties: {
+                                            semana: {
+                                                type: "string",
+                                                example: "2026-05-04T00:00:00.000Z"
+                                            },
+                                            entradas: {
+                                                type: "number",
+                                                example: 4000.00
+                                            },
+                                            saidas: {
+                                                type: "number",
+                                                example: 2500.00
+                                            },
+                                            saldo: {
+                                                type: "number",
+                                                example: 1500.00
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
+                }
+            },
+            401: {
+                description: "Token inválido ou não informado"
+            },
+            500: {
+                description: "Erro interno do servidor"
+            }
+        }
     }
-            }
-        }
+}
     },
-
-    "dashboard/gastos-categoria": {
-        get: {
-            tags: ['Dashboard'],
-            summary: 'Obter gastos por categoria',
-            description: 'Retorna o total gasto por categoria no mês atual para exibição em gráfico de pizza',
-            security: [{ bearerAuth: [] }],
-            responses: {
-                200: {
-                    description: 'Dados de gastos por categoria obtidos com sucesso',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'array',
-                                items: {
-                                    type: 'object',
-                                    properties: {
-                                        categoria: { type: 'string', example: 'Alimentação' },
-                                        total: { type: 'number', example: 1500.00 }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-
-        "dashboard/maiores-gastos": {
-        get: {
-            tags: ['Dashboard'],
-            summary: 'Obter maiores gastos do mês',
-            description: 'Retorna as maiores transações de saída do mês atual para exibição em gráfico de barras',
-            security: [{ bearerAuth: [] }],
-            responses: {
-                200: {                                                                                                                                                                  
-                    description: 'Dados de maiores gastos obtidos com sucesso',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'array',
-                                items: {
-                                    type: 'object',
-                                    properties: {
-                                        descricao: { type: 'string', example: 'Aluguel' },
-                                        valor: { type: 'number', example: 2000.00 }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-
-    "dashboard/extrato": {
-        get: {
-            tags: ['Dashboard'],
-            summary: 'Obter extrato do mês',
-            description: 'Retorna as últimas transações do mês atual para exibição no extrato',
-            security: [{ bearerAuth: [] }],
-            responses: {
-                200: {
-                    description: 'Dados do extrato obtidos com sucesso',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'array',
-                                items: {
-                                    type: 'object',
-                                    properties: {   
-                                        descricao: { type: 'string', example: 'Supermercado' },
-                                        valor: { type: 'number', example: 300.00 },
-                                        data_registro: { type: 'string', example: '2024-01-15' }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-
-    "dashboard/ultimas-transacoes": {
-        get: {
-            tags: ['Dashboard'],
-            summary
-: 'Obter últimas transações',
-
-            description: 'Retorna as últimas transações do mês atual para exibição em lista de últimas movimentações',
-            security: [{ bearerAuth: [] }],
-            responses: {
-                200: {
-                    description: 'Dados das últimas transações obtidos com sucesso',
-                    content: {
-                        'application/json': {
-                            schema: {
-                                type: 'array',
-                                items: {
-                                    type: 'object',
-                                    properties: {
-                                        descricao: { type: 'string', example: 'Pagamento de luz' },
-                                        valor: { type: 'number', example: 150.00 },
-                                        data_registro: { type: 'string', example: '2024-01-10' }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-
-
-
 
     components: {
         schemas: {
@@ -523,109 +689,165 @@ const documentacao = {
                 type: 'object',
                 properties: {
                     id_usuario: { type: "integer", example: 1 },
-                    nome: { type: "string", example: "Ricardo" },
-                    email: { type: "string", example: "ricardo@email.com" }
+                    nome: { type: "string", example: "João Silva" },
+                    email: { type: "string", example: "joao.silva@email.com" },
+                    ativo: { type: "boolean", example: true }
                 }
             },
 
             Cadastrar_Usuario: {
                 type: 'object',
+                required: ['nome', 'email', 'senha'],
                 properties: {
-                    nome: { type: "string", example: "Ricardo" },
-                    email: { type: "string", example: "ricardo@email.com" },
-                    senha: { type: "string", example: "123456" },
-                    tipo_acesso: { type: "string", example: "admin" }
+                    nome: { type: "string", example: "João Silva" },
+                    email: { type: "string", example: "joao.silva@email.com" },
+                    senha: { type: "string", example: "senha123456" }
                 }
             },
 
             Atualizar_Usuario: {
                 type: 'object',
                 properties: {
-                    nome: { type: "string" },
-                    email: { type: "string" },
-                    senha: { type: "string" }
+                    nome: { type: "string", example: "João Silva Santos" },
+                    email: { type: "string", example: "joao.silva.santos@email.com" },
+                    senha: { type: "string", example: "novaSenha123456" }
                 }
             },
 
             Login_Usuario: {
                 type: 'object',
+                required: ['email', 'senha'],
                 properties: {
-                    email: { type: "string" },
-                    senha: { type: "string" }
+                    email: { type: "string", example: "joao.silva@email.com" },
+                    senha: { type: "string", example: "senha123456" }
                 }
             },
 
             Resposta_Login: {
                 type: 'object',
                 properties: {
-                    message: { type: 'string' },
+                    message: { type: 'string', example: 'Login realizado com sucesso!' },
                     usuario: {
                         type: 'object',
                         properties: {
-                            id_usuario: { type: "integer" },
-                            nome: { type: "string" },
-                            email: { type: "string" },
-                            tipo: { type: "string" }
+                            id_usuario: { type: "integer", example: 1 },
+                            nome: { type: "string", example: "João Silva" },
+                            email: { type: "string", example: "joao.silva@email.com" },
+                            ativo: { type: "boolean", example: true }
                         }
                     },
-                    token: { type: 'string' }
+                    token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }
                 }
             },
 
             Listar_Categorias: {
                 type: 'object',
                 properties: {
-                    id_categoria: { type: "integer" },
-                    nome: { type: "string" },
-                    tipo: { type: "string", example: "S" }
+                    id_categoria: { type: "integer", example: 1 },
+                    nome: { type: "string", example: "Alimentação" },
+                    descricao: { type: "string", example: "Despesas com alimentos e refeições" },
+                    cor: { type: "string", example: "#FF5733" },
+                    icone: { type: "string", example: "🍔" },
+                    tipo: { type: "string", example: "S", description: "S = saída" },
+                    ativo: { type: "boolean", example: true }
                 }
             },
 
             Cadastrar_Categoria: {
                 type: 'object',
+                required: ['nome', 'cor', 'icone', 'tipo'],
                 properties: {
-                    nome: { type: "string" },
-                    descricao: { type: "string" },
-                    cor: { type: "string" },
-                    icone: { type: "string" },
-                    tipo: { type: "string" },
-                    ativo: { type: "boolean" }
+                    nome: { type: "string", example: "Alimentação" },
+                    descricao: { type: "string", example: "Despesas com alimentos e refeições" },
+                    cor: { type: "string", example: "#FF5733" },
+                    icone: { type: "string", example: "🍔" },
+                    tipo: { type: "string", enum: ["E", "S"], example: "S", description: "E = entrada, S = saída" },
+                    ativo: { type: "boolean", example: true }
+                }
+            },
+
+            Atualizar_Categoria: {
+                type: 'object',
+                properties: {
+                    nome: { type: "string", example: "Alimentação Premium" },
+                    descricao: { type: "string", example: "Despesas com alimentos, restaurantes e refeições" },
+                    cor: { type: "string", example: "#FF8C42" },
+                    icone: { type: "string", example: "🍽️" },
+                    tipo: { type: "string", enum: ["E", "S"], example: "S" },
+                    ativo: { type: "boolean", example: true }
+                }
+            },
+
+            Listar_Subcategorias: {
+                type: 'object',
+                properties: {
+                    id_subcategoria: { type: "integer", example: 1 },
+                    nome: { type: "string", example: "Alimentação" },
+                    ativo: { type: "boolean", example: true },
+                    id_categoria: { type: "integer", example: 1 }
+                }
+            },
+
+            Cadastrar_Subcategoria: {
+                type: 'object',
+                required: ['nome', 'ativo', 'id_categoria'],
+                properties: {
+                    nome: { type: "string", example: "Alimentação" },
+                    ativo: { type: "boolean", example: true },
+                    id_categoria: { type: "integer", example: 1 }
+                }
+            },
+
+            Atualizar_Subcategoria: {
+                type: 'object',
+                properties: {
+                    nome: { type: "string", example: "Alimentação" },
+                    ativo: { type: "boolean", example: true },
+                    id_categoria: { type: "integer", example: 1 }
                 }
             },
 
             Listar_Transacoes: {
                 type: 'object',
                 properties: {
-                    id_transacao: { type: "integer" },
-                    valor: { type: "number" },
-                    descricao: { type: "string" },
-                    tipo: { type: "string", enum: ["E", "S"], example: "S" },
-                    categoria: { type: "string" },
-                    subcategoria: { type: "string" }
+                    id_transacao: { type: "integer", example: 1 },
+                    valor: { type: "number", example: 150.50 },
+                    descricao: { type: "string", example: "Compra no supermercado" },
+                    data_registro: { type: "string", example: "26/05/2024" },
+                    data_vencimento: { type: "string", example: "26/05/2024" },
+                    data_pagamento: { type: "string", example: "26/05/2024" },
+                    tipo: { type: "string", enum: ["E", "S"], example: "S", description: "E = entrada, S = saída" },
+                    categoria: { type: "string", example: "Alimentação" },
+                    subcategoria: { type: "string", example: "Supermercado" }
                 }
             },
 
             Listar_Transacoes_Periodo: {
                 type: 'object',
                 properties: {
-                    id_transacao: { type: "integer" },
-                    valor: { type: "number" },
-                    descricao: { type: "string" },
-                    data_vencimento: { type: "string", example: "01/01/2024" },
-                    data_pagamento: { type: "string", example: "01/01/2024" },
-                    data_registro: { type: "string", example: "01/01/2024" },
-                    tipo: { type: "string", enum: ["E", "S"], example: "S" },
-                    categoria: { type: "string" },
-                    subcategoria: { type: "string" }
+                    id_transacao: { type: "integer", example: 5 },
+                    valor: { type: "number", example: 2500.00 },
+                    descricao: { type: "string", example: "Aluguel do mês" },
+                    data_vencimento: { type: "string", example: "01/06/2024" },
+                    data_pagamento: { type: "string", example: "01/06/2024" },
+                    data_registro: { type: "string", example: "31/05/2024" },
+                    tipo: { type: "string", enum: ["E", "S"], example: "S", description: "E = entrada, S = saída" },
+                    categoria: { type: "string", example: "Moradia" },
+                    subcategoria: { type: "string", example: "Aluguel" }
                 }
             },
 
             Cadastrar_Transacao: {
                 type: 'object',
+                required: ['valor', 'tipo'],
                 properties: {
-                    valor: { type: "number" },
-                    tipo: { type: "string", example: "E" },
-                    id_categoria: { type: "integer" }
+                    valor: { type: "number", example: 150.50 },
+                    descricao: { type: "string", example: "Supermercado" },
+                    data_vencimento: { type: "string", format: "date", example: "2024-06-15" },
+                    data_pagamento: { type: "string", format: "date", example: "2024-06-15" },
+                    tipo: { type: "string", enum: ["E", "S"], example: "S", description: "E = entrada, S = saída" },
+                    id_categoria: { type: "integer", example: 1 },
+                    id_subcategoria: { type: "integer", example: 3 }
                 }
             }
         },

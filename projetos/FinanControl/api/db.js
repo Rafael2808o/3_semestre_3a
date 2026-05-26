@@ -1,12 +1,19 @@
 import { Pool } from 'pg';
 
 const BD = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    password: 'admin',
-    database: 'bd_finan_control_3a',
-    port: 5432
+    connectionString: "postgres://postgres.mvozmdaztzhfarssanjs:Vpycm0vPjO1Ap8qL@aws-1-us-east-1.pooler.supabase.com:6543/postgres",
+    ssl: {
+        rejectUnauthorized: false
+    }
 })
+
+// const BD = new Pool({
+//     user: 'postgres',
+//     host: 'localhost',
+//     password: 'admin',
+//     database: 'bd_finan_control_3a',
+//     port: 5432
+// })
 
 const testarConexao = async () =>{
     try{

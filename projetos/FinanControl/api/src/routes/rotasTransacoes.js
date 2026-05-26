@@ -39,12 +39,51 @@ router.get('/transacoes', autenticarToken, async (req, res) => {
 router.post('/transacoes', autenticarToken, async (req, res) => {
     const { valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria } = req.body;
     try {
-        const id_usuario = req.usuario.id_usuario; // Supondo que o ID do usuário esteja disponível no token de autenticação
-        const comandoComUsuario = `INSERT INTO transacoes(valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria, id_usuario) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`
-        const valoresComUsuario = [valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria, id_usuario];
+        // Validar campos obrigatórios
+        if (!valor) {
+            return res.status(400).json({ error: 'O campo valor é obrigatório' })
+        }
 
-        await BD.query(comandoComUsuario, valoresComUsuario)
-        console.log(comandoComUsuario, valoresComUsuario);
+        if (!tipo) {
+            return res.status(400).json({ error: 'O campo tipo é obrigatório (E = entrada ou S = saída)' })
+        }
+
+        // Validar que tipo tenha apenas 1 caractere
+        if (tipo.length > 1) {
+            return res.status(400).json({ error: 'O campo tipo deve conter apenas 1 caractere (ex: E ou S)' })
+        }
+
+        // Validar que tipo seja E ou S
+        if (tipo !== 'E' && tipo !== 'S') {
+            return res.status(400).json({ error: 'O tipo deve ser "E" (entrada) ou "S" (saída)' })
+        }
+
+        // Validar que pelo menos uma categoria ou subcategoria seja fornecida
+        if (!id_categoria && !id_subcategoria) {
+            return res.status(400).json({ error: 'É necessário fornecer id_categoria ou id_subcategoria' })
+        }
+
+        // Se id_categoria for fornecida, verificar se existe
+        if (id_categoria) {
+            const verificarCategoria = await BD.query(`SELECT * FROM categorias WHERE id_categoria = $1`, [id_categoria])
+            if (verificarCategoria.rows.length === 0) {
+                return res.status(404).json({ message: 'Categoria não encontrada' })
+            }
+        }
+
+        // Se id_subcategoria for fornecida, verificar se existe
+        if (id_subcategoria) {
+            const verificarSubcategoria = await BD.query(`SELECT * FROM subcategorias WHERE id_subcategoria = $1`, [id_subcategoria])
+            if (verificarSubcategoria.rows.length === 0) {
+                return res.status(404).json({ message: 'Subcategoria não encontrada' })
+            }
+        }
+
+        const comando = `INSERT INTO transacoes(valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria) VALUES($1, $2, $3, $4, $5, $6, $7)`
+        const valores = [valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria];
+
+        await BD.query(comando, valores)
+        console.log(comando, valores);
 
         return res.status(201).json("Transacao cadastrada.");
     } catch (error) {
@@ -62,6 +101,32 @@ router.put('/transacoes/:id_transacao', autenticarToken, async (req, res) => {
     // Dados da transacao recebido via Corpo da página
     const { valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria } = req.body;
     try {
+        // Validar que tipo tenha apenas 1 caractere
+        if (tipo && tipo.length > 1) {
+            return res.status(400).json({ error: 'O campo tipo deve conter apenas 1 caractere (ex: E ou S)' })
+        }
+
+        // Validar que tipo seja E ou S (se fornecido)
+        if (tipo && tipo !== 'E' && tipo !== 'S') {
+            return res.status(400).json({ error: 'O tipo deve ser "E" (entrada) ou "S" (saída)' })
+        }
+
+        // Se id_categoria for fornecida, verificar se existe
+        if (id_categoria) {
+            const verificarCategoria = await BD.query(`SELECT * FROM categorias WHERE id_categoria = $1`, [id_categoria])
+            if (verificarCategoria.rows.length === 0) {
+                return res.status(404).json({ message: 'Categoria não encontrada' })
+            }
+        }
+
+        // Se id_subcategoria for fornecida, verificar se existe
+        if (id_subcategoria) {
+            const verificarSubcategoria = await BD.query(`SELECT * FROM subcategorias WHERE id_subcategoria = $1`, [id_subcategoria])
+            if (verificarSubcategoria.rows.length === 0) {
+                return res.status(404).json({ message: 'Subcategoria não encontrada' })
+            }
+        }
+
         //Verificar se a transacao existe
         const verificarTransacao = await BD.query(`SELECT * FROM transacoes
             WHERE id_transacao = $1`, [id_transacao])
@@ -230,15 +295,48 @@ router.get('/transacoes/subcategoria/:id_subcategoria', autenticarToken, async (
 router.post('/transacoes/agendar', autenticarToken, async (req, res) => {
     const { valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria } = req.body;
     try {
+        // Validar campos obrigatórios
+        if (!valor) {
+            return res.status(400).json({ error: 'O campo valor é obrigatório' })
+        }
+
+        if (!tipo) {
+            return res.status(400).json({ error: 'O campo tipo é obrigatório (E = entrada ou S = saída)' })
+        }
+
+        // Validar que tipo tenha apenas 1 caractere
+        if (tipo.length > 1) {
+            return res.status(400).json({ error: 'O campo tipo deve conter apenas 1 caractere (ex: E ou S)' })
+        }
+
+        // Validar que tipo seja E ou S
+        if (tipo !== 'E' && tipo !== 'S') {
+            return res.status(400).json({ error: 'O tipo deve ser "E" (entrada) ou "S" (saída)' })
+        }
+
+        // Validar que pelo menos uma categoria ou subcategoria seja fornecida
+        if (!id_categoria && !id_subcategoria) {
+            return res.status(400).json({ error: 'É necessário fornecer id_categoria ou id_subcategoria' })
+        }
+
+        // Se id_categoria for fornecida, verificar se existe
+        if (id_categoria) {
+            const verificarCategoria = await BD.query(`SELECT * FROM categorias WHERE id_categoria = $1`, [id_categoria])
+            if (verificarCategoria.rows.length === 0) {
+                return res.status(404).json({ message: 'Categoria não encontrada' })
+            }
+        }
+
+        // Se id_subcategoria for fornecida, verificar se existe
+        if (id_subcategoria) {
+            const verificarSubcategoria = await BD.query(`SELECT * FROM subcategorias WHERE id_subcategoria = $1`, [id_subcategoria])
+            if (verificarSubcategoria.rows.length === 0) {
+                return res.status(404).json({ message: 'Subcategoria não encontrada' })
+            }
+        }
+
         const hoje = new Date();
         hoje.setHours(0, 0, 0, 0);
-
-        const consulta = `SELECT id_transacao FROM transacoes WHERE data_vencimento = TO_DATE($1, 'YYYY-MM-DD') AND id_categoria = $2 AND id_usuario = $3
-        `;
-        const conflito = await BD.query(consulta, [data_vencimento, id_categoria, req.usuario.id_usuario]);
-        if (conflito.rows.length > 0) {
-            return res.status(409).json({ message: 'Já existe uma transação agendada para esta data, categoria e usuário.' });
-        }
 
         const dataVencimento = new Date(data_vencimento);
         dataVencimento.setHours(0, 0, 0, 0);
@@ -247,8 +345,8 @@ router.post('/transacoes/agendar', autenticarToken, async (req, res) => {
             return res.status(400).json({ message: 'Data de vencimento deve ser futura.' });
         }
 
-        const comando = `INSERT INTO transacoes(valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria, id_usuario) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`
-        const valores = [valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria, req.usuario.id_usuario];
+        const comando = `INSERT INTO transacoes(valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria) VALUES($1, $2, $3, $4, $5, $6, $7)`
+        const valores = [valor, descricao, data_vencimento, data_pagamento, tipo, id_subcategoria, id_categoria];
         await BD.query(comando, valores)
         return res.status(201).json("Transacao agendada com sucesso.");
     }

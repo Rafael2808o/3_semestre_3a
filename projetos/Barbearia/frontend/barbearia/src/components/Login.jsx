@@ -6,7 +6,7 @@ function Login() {
 
     async function logar() {
         try {
-            const resposta = await fetch('http://localhost:3000/usuarios/login', {
+            const resposta = await fetch('https://apibarbearia-rho.vercel.app/usuarios/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

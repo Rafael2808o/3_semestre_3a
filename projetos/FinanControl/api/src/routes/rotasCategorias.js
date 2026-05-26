@@ -25,6 +25,16 @@ router.get('/categorias', async (req, res) => {
 router.post('/categorias', async (req, res) => {
     const { nome, descricao, cor, icone, tipo, ativo } = req.body;
     try {
+        // Validar campos obrigatórios
+        if (!nome || !cor || !icone) {
+            return res.status(400).json({ error: 'Os campos nome, cor e icone são obrigatórios' })
+        }
+
+        // Validar que tipo tenha apenas 1 caractere
+        if (tipo && tipo.length > 1) {
+            return res.status(400).json({ error: 'O campo tipo deve conter apenas 1 caractere (ex: E ou S)' })
+        }
+
         const comando = `INSERT INTO categorias(nome, descricao, cor, icone, tipo, ativo) VALUES($1, $2, $3, $4, $5, $6)`
         const valores = [nome, descricao, cor, icone, tipo, ativo];
 
@@ -47,6 +57,16 @@ router.put('/categorias/:id_categoria', async (req, res) => {
     // Dados da categoria recebido via Corpo da página
     const { nome, descricao, cor, icone, tipo, ativo } = req.body;
     try {
+        // Validar campos obrigatórios
+        if (!nome || !cor || !icone) {
+            return res.status(400).json({ error: 'Os campos nome, cor e icone são obrigatórios' })
+        }
+
+        // Validar que tipo tenha apenas 1 caractere
+        if (tipo && tipo.length > 1) {
+            return res.status(400).json({ error: 'O campo tipo deve conter apenas 1 caractere (ex: E ou S)' })
+        }
+
         //Verificar se a categoria existe
         const verificarCategoria = await BD.query(`SELECT * FROM categorias
             WHERE id_categoria = $1`, [id_categoria])
@@ -72,6 +92,11 @@ router.patch('/categorias/:id_categoria', async (req, res) => {
     const { nome, descricao, cor, icone, tipo, ativo } = req.body;
 
     try {
+        // Validar que tipo tenha apenas 1 caractere
+        if (tipo && tipo.length > 1) {
+            return res.status(400).json({ error: 'O campo tipo deve conter apenas 1 caractere (ex: E ou S)' })
+        }
+
         //Verificar se a categoria existe
         const verificarCategoria = await BD.query(`SELECT * FROM categorias
             WHERE id_categoria = $1`, [id_categoria])
