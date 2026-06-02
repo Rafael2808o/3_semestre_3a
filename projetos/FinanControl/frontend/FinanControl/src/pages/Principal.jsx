@@ -22,7 +22,7 @@ export default function Principal() {
             localStorage.removeItem('UsuarioLogado');
             localStorage.removeItem('CredenciaisSalvas');
             setDadosLogin(null);
-            navigate('/login');
+            navigate('/');
         }
     };
 
@@ -55,9 +55,7 @@ export default function Principal() {
 
             {dadosLogin && (
                 <div style={{ padding: '20px' }}>
-                    <p><strong>Bem-vindo, {dadosLogin.nome}!</strong></p>
-                    <p>Email: {dadosLogin.email}</p>
-                    <p>Lembrar-me: {dadosLogin.lembrar ? '✓ Ativado' : '✗ Desativado'}</p>
+                    <p><strong>Usuario: {dadosLogin.nome}!</strong></p>
                 </div>
             )}
         </div>
