@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export default StyleSheet.create({
+const styles = StyleSheet.create({
   background: {
     flex: 1,
     width: '100%',
@@ -9,7 +9,7 @@ export default StyleSheet.create({
 
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)', // escurece a imagem
+    backgroundColor: 'rgba(0,0,0,0.55)',
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -81,11 +81,6 @@ export default StyleSheet.create({
     alignItems: 'center'
   },
 
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-
   rememberText: {
     color: '#d0d0d0',
     marginLeft: 6
@@ -96,61 +91,19 @@ export default StyleSheet.create({
     fontWeight: '600'
   },
 
-  primaryButton: {
+  loginButton: {
     height: 58,
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
-    backgroundColor: '#111'
+    backgroundColor: '#fff'
   },
 
-  primaryButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-    letterSpacing: 1
-  },
-
-  separatorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 25
-  },
-
-  separatorLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.12)'
-  },
-
-  separatorText: {
-    color: '#999',
-    marginHorizontal: 10
-  },
-
-  socialRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-
-  socialButton: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 58,
-    borderRadius: 16,
-    backgroundColor: '#161616',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
-    marginHorizontal: 5
-  },
-
-  socialText: {
-    color: '#fff',
-    marginLeft: 8,
-    fontWeight: '600'
+  loginText: {
+    color: '#000',
+    fontWeight: '900',
+    fontSize: 18
   },
 
   registerRow: {
@@ -180,3 +133,5 @@ export default StyleSheet.create({
     textAlign: 'center',
   }
 });
+
+export default styles;

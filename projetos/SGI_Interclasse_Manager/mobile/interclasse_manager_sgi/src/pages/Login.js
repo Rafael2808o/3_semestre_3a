@@ -11,10 +11,10 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Switch } from 'react-native';
-
 import { Feather } from '@expo/vector-icons';
+
+import styles from '../styles/Estilos'; 
 
 export default function Login() {
     const navigation = useNavigation();
@@ -32,31 +32,46 @@ export default function Login() {
                 return;
             }
 
-            const usuario = {
-                email,
-                senha,
-                lembrar
-            };
+            const response = await fetch(
+                'https://interclassemanager-seven.vercel.app/login',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email,
+                        senha,
+                    }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                setMensagem(data.message || 'Email ou senha inválidos');
+                return;
+            }
 
             await AsyncStorage.setItem(
                 'Usuario Logado',
-                JSON.stringify(usuario)
+                JSON.stringify(data)
             );
 
-            // Se marcou "lembrar de mim", salva os dados para próximo login
             if (lembrar) {
                 await AsyncStorage.setItem(
                     'DadosLogin',
                     JSON.stringify({ email, senha })
                 );
             } else {
-                // Se desmarcou, remove os dados salvos
                 await AsyncStorage.removeItem('DadosLogin');
             }
 
             navigation.navigate('Principal');
+
         } catch (error) {
-            setMensagem(`Erro ao realizar login: ${error.message}`);
+            console.log(error);
+            setMensagem('Erro ao conectar com o servidor');
         }
     }
 
@@ -68,15 +83,16 @@ export default function Login() {
             if (usuarioLogado) {
                 const usuario = JSON.parse(usuarioLogado);
 
-                if (usuario.lembrar) {
+                if (usuario) {
                     navigation.navigate('Principal');
                 }
             }
 
-            // Carrega os dados salvos se existirem
             const dadosLogin = await AsyncStorage.getItem('DadosLogin');
             if (dadosLogin) {
-                const { email: emailSalvo, senha: senhaSalva } = JSON.parse(dadosLogin);
+                const { email: emailSalvo, senha: senhaSalva } =
+                    JSON.parse(dadosLogin);
+
                 setEmail(emailSalvo);
                 setSenha(senhaSalva);
                 setLembrar(true);
@@ -89,7 +105,6 @@ export default function Login() {
     return (
         <View style={styles.overlay}>
             <View style={styles.container}>
-
                 <View style={styles.card}>
 
                     <Image
@@ -105,17 +120,10 @@ export default function Login() {
                         Faça login para continuar
                     </Text>
 
-                    <Text style={styles.label}>
-                        E-mail
-                    </Text>
+                    <Text style={styles.label}>E-mail</Text>
 
                     <View style={styles.inputContainer}>
-                        <Feather
-                            name="mail"
-                            size={22}
-                            color="#777"
-                        />
-
+                        <Feather name="mail" size={22} color="#777" />
                         <TextInput
                             style={styles.input}
                             placeholder="seu@email.com"
@@ -126,16 +134,10 @@ export default function Login() {
                         />
                     </View>
 
-                    <Text style={styles.label}>
-                        Senha
-                    </Text>
+                    <Text style={styles.label}>Senha</Text>
 
                     <View style={styles.inputContainer}>
-                        <Feather
-                            name="lock"
-                            size={22}
-                            color="#777"
-                        />
+                        <Feather name="lock" size={22} color="#777" />
 
                         <TextInput
                             style={styles.input}
@@ -152,11 +154,7 @@ export default function Login() {
                             }
                         >
                             <Feather
-                                name={
-                                    showPassword
-                                        ? 'eye-off'
-                                        : 'eye'
-                                }
+                                name={showPassword ? 'eye-off' : 'eye'}
                                 size={22}
                                 color="#777"
                             />
@@ -176,12 +174,10 @@ export default function Login() {
                                 Lembrar de mim
                             </Text>
                         </View>
+
                         <TouchableOpacity
                             onPress={() =>
-                                Alert.alert(
-                                    'Aviso',
-                                    'Função em desenvolvimento'
-                                )
+                                Alert.alert('Aviso', 'Função em desenvolvimento')
                             }
                         >
                             <Text style={styles.forgot}>
@@ -193,16 +189,11 @@ export default function Login() {
                     <TouchableOpacity
                         activeOpacity={0.9}
                         onPress={fazerLogin}
+                        style={styles.loginButton}
                     >
-                        <TouchableOpacity
-                            activeOpacity={0.9}
-                            onPress={fazerLogin}
-                            style={styles.loginButton}
-                        >
-                            <Text style={styles.loginText}>
-                                ENTRAR
-                            </Text>
-                        </TouchableOpacity>x'
+                        <Text style={styles.loginText}>
+                            ENTRAR
+                        </Text>
                     </TouchableOpacity>
 
                     {mensagem !== '' && (
@@ -228,184 +219,7 @@ export default function Login() {
                 <Text style={styles.footer}>
                     © 2026 Interclasse Manager
                 </Text>
-
             </View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    overlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.85)',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-
-    container: {
-        flex: 1,
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-    },
-
-    logo: {
-        width: 1240,
-        height: 200,
-        alignSelf: 'center',
-        marginBottom: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        elevation: 10,
-    },
-
-    card: {
-        width: '100%',
-        maxWidth: 440,
-        backgroundColor: 'rgba(15,15,15,0.95)',
-        borderRadius: 34,
-        padding: 26,
-
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 12
-        },
-        shadowOpacity: 0.45,
-        shadowRadius: 22,
-        elevation: 18
-    },
-
-    titulo: {
-        color: '#fff',
-        fontSize: 32,
-        fontWeight: '800',
-        textAlign: 'center'
-    },
-
-    subtitulo: {
-        color: '#c1c1c1',
-        textAlign: 'center',
-        marginTop: 8,
-        marginBottom: 26,
-        fontSize: 15
-    },
-
-    label: {
-        color: '#f5f5f5',
-        marginBottom: 10,
-        fontWeight: '700',
-        fontSize: 13
-    },
-
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#121212',
-        borderRadius: 18,
-        paddingHorizontal: 16,
-        height: 58,
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)'
-    },
-
-    input: {
-        flex: 1,
-        color: '#fff',
-        marginLeft: 12,
-        fontSize: 15
-    },
-
-    optionsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12
-    },
-
-    checkboxRow: {
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-
-    checkbox: {
-        width: 22,
-        height: 22,
-        borderRadius: 6,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.3)',
-        marginRight: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'transparent'
-    },
-
-    checkboxChecked: {
-        backgroundColor: '#ffd36b',
-        borderColor: '#ffd36b'
-    },
-
-    rememberText: {
-        color: '#d1d1d1',
-        fontSize: 13,
-        fontWeight: '600'
-    },
-
-    forgot: {
-        color: '#ffd36b',
-        fontWeight: '700',
-        fontSize: 13
-    },
-
-    loginButton: {
-        height: 58,
-        borderRadius: 18,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 20,
-        width: '100%',
-        backgroundColor: '#fff',
-    },
-
-    loginText: {
-        color: '#000',
-        fontSize: 18,
-        fontWeight: '900',
-        letterSpacing: 1.1
-    },
-
-    error: {
-        color: '#ff7b7b',
-        textAlign: 'center',
-        marginTop: 12
-    },
-
-    registerRow: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 24
-    },
-
-    registerText: {
-        color: '#c5c5c5'
-    },
-
-    registerLink: {
-        color: '#ffd36b',
-        marginLeft: 6,
-        fontWeight: '800'
-    },
-
-    footer: {
-        color: '#9a9a9a',
-        marginTop: 18,
-        textAlign: 'center'
-    }
-});
